@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopZen — Smart Secure Commerce</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#EE4D2D;--primary-l:#ff6b4a;--primary-d:#c73e24;
+  --secondary:#FFB800;--dark:#1a1a2e;--gray:#f5f5f5;
+  --text:#212121;--text-m:#555;--text-l:#888;
+  --success:#00b14f;--danger:#ff2d55;--white:#fff;
+  --border:#e8e8e8;--sh:0 2px 8px rgba(0,0,0,.08);--sh-lg:0 8px 24px rgba(0,0,0,.13);
+  --r:12px;--r-sm:8px
+}
+body{font-family:'Outfit',sans-serif;background:#f5f5f5;color:var(--text);min-height:100vh}
+
+/* ===== HEADER ===== */
+.hdr{background:var(--primary);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(238,77,45,.35)}
+.hdr-inner{max-width:1240px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px}
+.logo{font-family:'Poppins',sans-serif;font-weight:900;font-size:22px;color:#fff;white-space:nowrap;letter-spacing:-0.5px;cursor:pointer}
+.logo em{color:var(--secondary);font-style:normal}
+.logo sub{font-size:10px;font-weight:400;color:rgba(255,255,255,.6);vertical-align:bottom;letter-spacing:0}
+.srch{flex:1;display:flex;background:#fff;border-radius:4px;overflow:hidden;max-width:600px}
+.srch input{flex:1;border:none;outline:none;padding:9px 14px;font-size:14px;font-family:'Outfit',sans-serif}
+.srch button{background:var(--secondary);border:none;padding:9px 22px;cursor:pointer;color:var(--dark);font-weight:700;font-size:14px;transition:.2s}
+.srch button:hover{background:#e6a600}
+.hdr-acts{display:flex;align-items:center;gap:18px;margin-left:auto}
+.cart-btn{position:relative;background:none;border:none;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px}
+.cart-ico{font-size:22px;line-height:1}
+.cart-lbl{font-size:10px;font-weight:600;letter-spacing:.5px}
+.cart-cnt{position:absolute;top:-4px;right:-6px;background:var(--secondary);color:var(--dark);font-size:10px;font-weight:800;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.2s}
+.cart-cnt.pop{animation:pulse .3s ease}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+
+/* ===== NAV TABS ===== */
+.nav-tabs{background:var(--primary-d)}
+.nav-tabs-inner{max-width:1240px;margin:0 auto;padding:0 20px;display:flex}
+.ntab{padding:10px 22px;color:rgba(255,255,255,.75);cursor:pointer;font-size:14px;font-weight:600;border:none;background:none;border-bottom:3px solid transparent;font-family:'Outfit',sans-serif;transition:.2s;letter-spacing:.3px}
+.ntab:hover{color:#fff;background:rgba(255,255,255,.08)}
+.ntab.active{color:#fff;border-bottom-color:var(--secondary)}
+
+/* ===== MAIN ===== */
+.main{max-width:1240px;margin:0 auto;padding:20px}
+.page{display:none}.page.active{display:block}
+
+/* ===== HERO ===== */
+.hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);border-radius:var(--r);padding:36px 40px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;border-radius:50%;background:rgba(238,77,45,.12);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;right:22%;width:200px;height:200px;border-radius:50%;background:rgba(255,184,0,.08);pointer-events:none}
+.hero-txt{z-index:1}
+.hero-badge{background:var(--secondary);color:var(--dark);padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;display:inline-block;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase}
+.hero h1{font-family:'Poppins',sans-serif;font-size:34px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:10px}
+.hero h1 em{color:var(--secondary);font-style:normal}
+.hero p{color:rgba(255,255,255,.65);font-size:15px;margin-bottom:18px}
+.hero-cta{background:var(--primary);color:#fff;border:none;padding:12px 28px;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;letter-spacing:.3px}
+.hero-cta:hover{background:var(--primary-l);transform:translateY(-2px)}
+.hero-emoji{font-size:88px;z-index:1;filter:drop-shadow(0 8px 24px rgba(0,0,0,.3))}
+
+/* ===== CATEGORY CHIPS ===== */
+.sec-hdr{font-family:'Poppins',sans-serif;font-size:17px;font-weight:700;margin-bottom:14px;color:var(--dark);display:flex;align-items:center;gap:10px}
+.sec-hdr::after{content:'';flex:1;height:2px;background:var(--border)}
+.cats{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.cat-chip{background:#fff;border:2px solid var(--border);border-radius:30px;padding:8px 18px;cursor:pointer;font-size:13px;font-weight:600;transition:.2s;display:flex;align-items:center;gap:6px;color:var(--text-m);user-select:none}
+.cat-chip:hover,.cat-chip.active{background:var(--primary);border-color:var(--primary);color:#fff;transform:scale(1.03)}
+.cat-chip .chip-ico{font-size:15px}
+
+/* ===== PRODUCT GRID ===== */
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:14px}
+.prod-card{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:.25s;position:relative}
+.prod-card:hover{transform:translateY(-5px);box-shadow:var(--sh-lg)}
+.prod-badge{position:absolute;top:8px;left:8px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:4px;z-index:2;text-transform:uppercase;letter-spacing:.5px}
+.prod-badge.hot{background:var(--primary);color:#fff}
+.prod-badge.sale{background:#ff6b4a;color:#fff}
+.prod-badge.new{background:var(--success);color:#fff}
+.prod-img{width:100%;height:175px;object-fit:cover;display:block;background:#f0f0f0}
+.prod-info{padding:11px}
+.prod-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px}
+.prod-price{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--primary);margin-bottom:2px}
+.prod-orig{font-size:12px;color:var(--text-l);text-decoration:line-through;margin-right:5px}
+.prod-disc{font-size:12px;color:var(--success);font-weight:600}
+.prod-meta{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-l);margin:6px 0 10px}
+.stars{color:var(--secondary)}
+.atc-btn{width:100%;background:var(--primary);color:#fff;border:none;padding:9px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;letter-spacing:.3px}
+.atc-btn:hover{background:var(--primary-l)}
+.atc-btn:active{transform:scale(.98)}
+.no-results{text-align:center;padding:60px 20px;color:var(--text-l);font-size:16px}
+
+/* ===== CART SIDEBAR ===== */
+.cart-ovl{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.cart-ovl.open{opacity:1;pointer-events:all}
+.cart-sb{position:fixed;top:0;right:-440px;width:440px;height:100vh;background:#fff;z-index:201;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 30px rgba(0,0,0,.15)}
+.cart-sb.open{right:0}
+.cart-hdr{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cart-hdr h3{font-family:'Poppins',sans-serif;font-size:18px;font-weight:700}
+.cart-hdr .badge{background:#fff0ec;color:var(--primary);font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px;margin-left:8px}
+.close-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-l);line-height:1;padding:4px;border-radius:50%;transition:.2s}
+.close-btn:hover{background:var(--gray);color:var(--text)}
+.cart-items{flex:1;overflow-y:auto;padding:16px 22px}
+.cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ci-img{width:72px;height:72px;object-fit:cover;border-radius:8px;background:#f0f0f0;flex-shrink:0}
+.ci-info{flex:1}
+.ci-name{font-size:13px;font-weight:500;margin-bottom:3px;line-height:1.4}
+.ci-price{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:var(--primary);margin-bottom:8px}
+.ci-qty{display:flex;align-items:center;gap:10px}
+.qty-btn{width:28px;height:28px;border:1.5px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.2s;line-height:1;font-family:monospace}
+.qty-btn:hover{border-color:var(--primary);color:var(--primary)}
+.qty-num{font-size:14px;font-weight:700;min-width:22px;text-align:center}
+.ci-del{background:none;border:none;color:var(--text-l);cursor:pointer;font-size:18px;padding:4px;margin-left:auto;transition:.2s}
+.ci-del:hover{color:var(--danger)}
+.cart-empty{text-align:center;padding:60px 20px;color:var(--text-l)}
+.cart-empty .ce-ico{font-size:64px;margin-bottom:14px;opacity:.5}
+.cart-empty p{font-size:15px;margin-bottom:6px;font-weight:500}
+.cart-empty small{font-size:13px;color:var(--text-l)}
+.cart-footer{padding:18px 22px;border-top:1px solid var(--border)}
+.cart-sub{display:flex;justify-content:space-between;font-size:13px;color:var(--text-m);margin-bottom:4px}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ctl{font-size:15px;font-weight:600}
+.cta-v{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--primary)}
+.co-btn{width:100%;background:var(--primary);color:#fff;border:none;padding:14px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;letter-spacing:.4px}
+.co-btn:hover{background:var(--primary-l);transform:translateY(-1px)}
+.co-btn:disabled{background:#ccc;cursor:not-allowed;transform:none}
+
+/* ===== CHECKOUT MODAL ===== */
+.mod-ovl{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.mod-ovl.open{display:flex}
+.mod{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;position:relative;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.mod-hdr{padding:22px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.mod-hdr h3{font-family:'Poppins',sans-serif;font-size:19px;font-weight:700;flex:1}
+.mod-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-l);transition:.2s;padding:4px}
+.mod-close:hover{color:var(--text)}
+.mod-body{padding:22px 24px}
+
+/* checkout steps */
+.steps{display:flex;margin-bottom:22px;position:relative}
+.steps::before{content:'';position:absolute;top:13px;left:14%;right:14%;height:2px;background:var(--border);z-index:0}
+.step{flex:1;text-align:center;z-index:1}
+.step-n{width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--text-l);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:4px;transition:.3s;position:relative}
+.step.active .step-n,.step.done .step-n{background:var(--primary);color:#fff}
+.step.done .step-n{background:var(--success)}
+.step-lbl{font-size:11px;color:var(--text-l);font-weight:500}
+.step.active .step-lbl{color:var(--primary);font-weight:700}
+
+/* form */
+.fg{margin-bottom:15px}
+.fl{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--dark);text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;border:2px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;font-family:'Outfit',sans-serif;outline:none;transition:.2s;color:var(--text)}
+.fi:focus{border-color:var(--primary)}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card-wrap{position:relative}
+.card-wrap .fi{padding-right:80px;letter-spacing:1.5px;font-family:'Poppins',sans-serif;font-size:15px}
+.card-ico-row{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;gap:4px;font-size:18px;pointer-events:none}
+
+/* order summary */
+.os-item{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;color:var(--text-m)}
+.os-item.total{font-family:'Poppins',sans-serif;font-size:17px;font-weight:700;border-top:2px solid var(--border);margin-top:8px;padding-top:10px;color:var(--primary)}
+.os-prod-list{max-height:140px;overflow-y:auto;margin-bottom:10px}
+.os-prod{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.os-prod img{width:40px;height:40px;border-radius:6px;object-fit:cover}
+
+.mod-foot{padding:14px 24px 22px;display:flex;gap:10px}
+.btn-sec{flex:1;padding:12px;border:2px solid var(--border);background:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s}
+.btn-sec:hover{border-color:var(--primary);color:var(--primary)}
+.btn-pri{flex:2;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;letter-spacing:.3px}
+.btn-pri:hover{background:var(--primary-l)}
+.btn-pri:disabled{background:#ccc;cursor:not-allowed}
+
+/* ===== FRAUD SCREEN ===== */
+.fraud-scr{position:fixed;inset:0;background:#070710;z-index:500;display:none;align-items:center;justify-content:center;overflow:hidden}
+.fraud-scr.active{display:flex}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,rgba(255,45,85,.6) 50%,transparent 100%);animation:scan 2.5s linear infinite;pointer-events:none}
+@keyframes scan{0%{top:-2px;opacity:0}5%{opacity:1}95%{opacity:1}100%{top:100%;opacity:0}}
+.fraud-inner{text-align:center;padding:40px 20px;max-width:560px;width:100%;position:relative;z-index:2}
+.fraud-loading{display:block}
+.fraud-spinner{width:64px;height:64px;border:4px solid rgba(255,255,255,.08);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fraud-load-title{color:rgba(255,255,255,.85);font-size:17px;font-weight:600;margin-bottom:8px}
+.fraud-load-sub{color:rgba(255,255,255,.4);font-size:13px}
+.fraud-progress{width:260px;height:3px;background:rgba(255,255,255,.08);border-radius:3px;margin:20px auto 0;overflow:hidden}
+.fraud-prog-bar{height:100%;background:var(--primary);border-radius:3px;width:0%;transition:width .4s ease}
+
+.fraud-result{display:none;animation:fadeIn .6s ease}
+.fraud-result.show{display:block}
+.fraud-big-ico{font-size:70px;margin-bottom:14px;animation:shakeX .6s ease}
+@keyframes shakeX{0%,100%{transform:translateX(0)}15%,45%,75%{transform:translateX(-8px)}30%,60%,90%{transform:translateX(8px)}}
+.fraud-ttl{font-family:'Poppins',sans-serif;font-size:46px;font-weight:900;color:var(--danger);letter-spacing:4px;margin-bottom:6px;position:relative;text-shadow:0 0 40px rgba(255,45,85,.4)}
+.fraud-ttl::before,.fraud-ttl::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%}
+.fraud-ttl::before{color:#f700ff;animation:glitch1 3s infinite;clip-path:polygon(0 20%,100% 20%,100% 45%,0 45%)}
+.fraud-ttl::after{color:#00f7ff;animation:glitch2 3s infinite;clip-path:polygon(0 55%,100% 55%,100% 80%,0 80%)}
+@keyframes glitch1{0%,87%,100%{transform:none}89%{transform:translate(-5px,2px)}91%{transform:translate(5px,-2px)}93%{transform:none}}
+@keyframes glitch2{0%,87%,100%{transform:none}89%{transform:translate(5px,2px)}91%{transform:translate(-5px,-2px)}93%{transform:none}}
+.fraud-sub{color:rgba(255,255,255,.5);font-size:15px;margin-bottom:22px}
+.fraud-box{background:rgba(255,45,85,.08);border:1px solid rgba(255,45,85,.25);border-radius:14px;padding:20px 24px;text-align:left;margin:0 auto 24px}
+.fdr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
+.fdr:last-child{border-bottom:none}
+.fdr-lbl{color:rgba(255,255,255,.45);font-weight:500}
+.fdr-val{color:var(--danger);font-weight:700}
+.fdr-val.ok{color:#00ff87}
+.fdr-val.warn{color:var(--secondary)}
+.fraud-score{background:rgba(255,45,85,.15);border:2px solid rgba(255,45,85,.4);border-radius:10px;padding:14px 20px;margin:0 auto 22px;text-align:center}
+.fs-label{color:rgba(255,255,255,.5);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.fs-num{font-family:'Poppins',sans-serif;font-size:42px;font-weight:900;color:var(--danger)}
+.fs-desc{font-size:12px;color:rgba(255,45,85,.7)}
+.fraud-back{background:var(--danger);color:#fff;border:none;padding:13px 40px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;letter-spacing:.3px}
+.fraud-back:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(255,45,85,.4)}
+
+/* ===== SUCCESS SCREEN ===== */
+.success-scr{position:fixed;inset:0;background:#fff;z-index:500;display:none;overflow-y:auto}
+.success-scr.active{display:block}
+.success-inner{max-width:860px;margin:0 auto;padding:40px 20px 60px}
+.success-hdr{text-align:center;margin-bottom:32px}
+.success-ico{width:80px;height:80px;background:var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 18px;animation:pop .5s cubic-bezier(.17,.89,.32,1.25)}
+@keyframes pop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.success-hdr h2{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;color:var(--success);margin-bottom:6px}
+.success-hdr p{color:var(--text-l);font-size:14px}
+.order-card{background:#f0fdf6;border:1.5px solid #bbf7d0;border-radius:14px;padding:20px 24px;margin-bottom:28px}
+.order-id{font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:var(--success);margin-bottom:8px}
+.order-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;color:var(--text-m)}
+.order-meta span{display:flex;align-items:center;gap:6px}
+.order-meta strong{color:var(--text)}
+.purchased-items h3{font-family:'Poppins',sans-serif;font-size:17px;font-weight:700;margin-bottom:12px}
+.purchased-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:32px}
+.purchased-card{background:#f9f9f9;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.purchased-card img{width:100%;height:100px;object-fit:cover}
+.purchased-card .pc-info{padding:8px 10px}
+.purchased-card .pc-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.purchased-card .pc-price{font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;color:var(--primary)}
+.rec-sec{margin-top:10px}
+.rec-sec h3{font-family:'Poppins',sans-serif;font-size:19px;font-weight:700;margin-bottom:6px;color:var(--dark)}
+.rec-sec p{font-size:13px;color:var(--text-l);margin-bottom:16px}
+.continue-btn{display:block;margin:28px auto 0;background:var(--primary);color:#fff;border:none;padding:14px 48px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;letter-spacing:.3px}
+.continue-btn:hover{background:var(--primary-l);transform:translateY(-2px)}
+
+/* ===== ANALYTICS ===== */
+.analytics-top{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-c{background:#fff;border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
+.stat-ic{font-size:26px;margin-bottom:8px}
+.stat-lbl{font-size:12px;color:var(--text-l);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stat-val{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;color:var(--dark);margin-bottom:3px}
+.stat-chg{font-size:12px;font-weight:600;color:var(--success)}
+.stat-chg.down{color:var(--danger)}
+.chart-c{background:#fff;border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh);margin-bottom:20px}
+.chart-ttl{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px;color:var(--dark)}
+.chart-sub{font-size:12px;color:var(--text-l);margin-bottom:18px}
+.chart-wrap{position:relative;height:300px}
+.chart-wrap.h240{height:240px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.cat-bar-item{margin-bottom:14px}
+.cbi-hdr{display:flex;justify-content:space-between;margin-bottom:5px;font-size:13px}
+.cbi-name{font-weight:600;display:flex;align-items:center;gap:6px}
+.cbi-pct{font-weight:700;color:var(--primary)}
+.cbi-track{height:9px;background:var(--gray);border-radius:5px;overflow:hidden}
+.cbi-fill{height:100%;border-radius:5px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.dt{width:100%;border-collapse:collapse}
+.dt th{background:var(--gray);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-l);text-transform:uppercase;letter-spacing:.5px}
+.dt td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border)}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:#fafafa}
+.rnk{font-family:'Poppins',sans-serif;font-weight:800;color:var(--primary)}
+.rnk.g2{color:#aaa}.rnk.g3{color:#cd7f32}
+.fraud-pill{background:#fff0f0;color:var(--danger);font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px}
+.ok-pill{background:#f0fdf4;color:var(--success);font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px}
+.mini-img{width:36px;height:36px;border-radius:6px;object-fit:cover;margin-right:8px;vertical-align:middle}
+.fraud-meter{background:#fff;border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh);margin-bottom:20px}
+.fm-title{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;margin-bottom:16px;color:var(--dark)}
+.fm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.fm-stat{text-align:center;background:var(--gray);border-radius:10px;padding:14px}
+.fm-num{font-family:'Poppins',sans-serif;font-size:28px;font-weight:800}
+.fm-lbl{font-size:12px;color:var(--text-l);font-weight:500;margin-top:2px}
+.fm-num.red{color:var(--danger)}
+.fm-num.green{color:var(--success)}
+.fm-num.orange{color:var(--secondary)}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:800;transition:transform .3s ease;pointer-events:none;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .analytics-top{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+  .hero h1{font-size:24px}.hero-emoji{font-size:60px}
+}
+@media(max-width:600px){
+  .prod-grid{grid-template-columns:repeat(2,1fr)}
+  .cart-sb{width:100%;right:-100%}
+  .analytics-top{grid-template-columns:repeat(2,1fr)}
+  .fm-stats{grid-template-columns:repeat(2,1fr)}
+  .srch{display:none}
+  .hero{padding:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="logo" onclick="switchTab('shop')">Shop<em>Zen</em> <sub>🛡 secure</sub></div>
+    <div class="srch">
+      <input type="text" id="searchInput" placeholder="Search products, categories…" oninput="handleSearch(this.value)">
+      <button onclick="handleSearch(document.getElementById('searchInput').value)">🔍 Search</button>
+    </div>
+    <div class="hdr-acts">
+      <button class="cart-btn" onclick="openCart()">
+        <span class="cart-ico">🛒</span>
+        <span class="cart-lbl">Cart</span>
+        <span class="cart-cnt" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-tabs">
+  <div class="nav-tabs-inner">
+    <button class="ntab active" onclick="switchTab('shop')" id="tab-shop">🛍️ Shop</button>
+    <button class="ntab" onclick="switchTab('analytics')" id="tab-analytics">📊 Analytics Dashboard</button>
+  </div>
+</nav>
+
+<!-- ===== SHOP PAGE ===== -->
+<div class="main">
+<div class="page active" id="page-shop">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-txt">
+      <div class="hero-badge">🔥 MEGA SALE — UP TO 60% OFF</div>
+      <h1>Shop Smarter.<br>Stay <em>Fraud-Free.</em></h1>
+      <p>Millions of products. Zero compromise on security.<br>Every transaction verified by our AI fraud shield.</p>
+      <button class="hero-cta" onclick="filterCat('all')">Shop Now →</button>
+    </div>
+    <div class="hero-emoji">🛍️</div>
+  </div>
+
+  <!-- Categories -->
+  <div class="sec-hdr">Browse Categories</div>
+  <div class="cats" id="catChips"></div>
+
+  <!-- Products -->
+  <div class="sec-hdr" id="prodSecTitle">All Products</div>
+  <div class="prod-grid" id="prodGrid"></div>
+</div>
+
+<!-- ===== ANALYTICS PAGE ===== -->
+<div class="page" id="page-analytics">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+      <div style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--dark)">📊 Analytics Dashboard</div>
+      <div style="font-size:13px;color:var(--text-l);margin-top:2px">Live transaction data · Fraud detection metrics · Product performance</div>
+    </div>
+    <div style="background:#fff;border-radius:8px;padding:8px 16px;font-size:13px;color:var(--text-m);box-shadow:var(--sh);font-weight:600">Updated: <span id="lastUpdated">Just now</span></div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="analytics-top" id="statCards"></div>
+
+  <!-- Revenue trend + Top Products Bar -->
+  <div class="two-col">
+    <div class="chart-c">
+      <div class="chart-ttl">💰 Revenue Trend</div>
+      <div class="chart-sub">Last 14 days estimated revenue (₱)</div>
+      <div class="chart-wrap h240"><canvas id="lineChart"></canvas></div>
+    </div>
+    <div class="chart-c">
+      <div class="chart-ttl">🏆 Category Sales Distribution</div>
+      <div class="chart-sub">Units sold by category</div>
+      <div class="chart-wrap h240"><canvas id="doughnutChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Main bar chart -->
+  <div class="chart-c">
+    <div class="chart-ttl">📦 Top 10 Products by Units Sold</div>
+    <div class="chart-sub">Based on all-time transaction data including pre-existing orders</div>
+    <div class="chart-wrap" style="height:320px"><canvas id="barChart"></canvas></div>
+  </div>
+
+  <div class="two-col">
+    <!-- Category % breakdown -->
+    <div class="chart-c">
+      <div class="chart-ttl">📈 Category Performance</div>
+      <div class="chart-sub">Percentage of total units sold per category</div>
+      <div id="catBars" style="margin-top:8px"></div>
+    </div>
+    <!-- Fraud meter -->
+    <div class="fraud-meter">
+      <div class="fm-title">🛡️ Fraud Detection Summary</div>
+      <div class="fm-stats">
+        <div class="fm-stat"><div class="fm-num green" id="fm-success">-</div><div class="fm-lbl">Legit Transactions</div></div>
+        <div class="fm-stat"><div class="fm-num red" id="fm-fraud">-</div><div class="fm-lbl">Fraud Attempts</div></div>
+        <div class="fm-stat"><div class="fm-num orange" id="fm-rate">-</div><div class="fm-lbl">Fraud Rate</div></div>
+      </div>
+      <div class="chart-wrap" style="height:200px"><canvas id="fraudPieChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Top Products Table -->
+  <div class="chart-c" style="margin-bottom:20px">
+    <div class="chart-ttl">🥇 Top Products Ranking</div>
+    <div class="chart-sub">Sorted by units sold — updates with each purchase</div>
+    <div style="overflow-x:auto;margin-top:8px">
+      <table class="dt" id="topProdTable">
+        <thead><tr><th>Rank</th><th>Product</th><th>Category</th><th>Units Sold</th><th>Revenue (₱)</th><th>Avg Rating</th></tr></thead>
+        <tbody id="topProdBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Transaction Log -->
+  <div class="chart-c">
+    <div class="chart-ttl">📋 Transaction Log</div>
+    <div class="chart-sub">All transactions including fraud attempts — newest first</div>
+    <div style="overflow-x:auto;margin-top:8px">
+      <table class="dt" id="txnTable">
+        <thead><tr><th>Order ID</th><th>Date</th><th>Customer</th><th>Items</th><th>Amount</th><th>Card</th><th>Status</th></tr></thead>
+        <tbody id="txnBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div><!-- end .main -->
+
+<!-- ===== CART SIDEBAR ===== -->
+<div class="cart-ovl" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sb" id="cartSidebar">
+  <div class="cart-hdr">
+    <h3>🛒 Shopping Cart <span class="badge" id="cartItemBadge">0 items</span></h3>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-sub"><span>Subtotal</span><span id="cartSubtotal">₱0.00</span></div>
+    <div class="cart-sub"><span>Shipping</span><span style="color:var(--success);font-weight:700">FREE</span></div>
+    <div class="cart-total-row">
+      <span class="ctl">Total</span>
+      <span class="cta-v" id="cartTotal">₱0.00</span>
+    </div>
+    <button class="co-btn" id="checkoutBtn" onclick="openCheckout()" disabled>Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT MODAL ===== -->
+<div class="mod-ovl" id="checkoutModal">
+  <div class="mod">
+    <div class="mod-hdr">
+      <h3 id="modalTitle">Checkout</h3>
+      <button class="mod-close" onclick="closeCheckout()">✕</button>
+    </div>
+    <div class="mod-body" id="modalBody"></div>
+    <div class="mod-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- ===== FRAUD SCREEN ===== -->
+<div class="fraud-scr" id="fraudScreen">
+  <div class="scan-line"></div>
+  <div class="fraud-inner">
+    <div class="fraud-loading" id="fraudLoading">
+      <div class="fraud-spinner"></div>
+      <div class="fraud-load-title" id="fraudLoadTitle">Connecting to payment gateway…</div>
+      <div class="fraud-load-sub" id="fraudLoadSub">Please do not close this window</div>
+      <div class="fraud-progress"><div class="fraud-prog-bar" id="fraudProgBar"></div></div>
+    </div>
+    <div class="fraud-result" id="fraudResult">
+      <div class="fraud-big-ico">🚨</div>
+      <div class="fraud-ttl" id="fraudTtl" data-text="FRAUD DETECTED">FRAUD DETECTED</div>
+      <div class="fraud-sub">This transaction has been flagged and automatically blocked by ShopZen's fraud protection system.</div>
+      <div class="fraud-box" id="fraudDetails"></div>
+      <div class="fraud-score">
+        <div class="fs-label">Risk Score</div>
+        <div class="fs-num" id="fraudScore">—</div>
+        <div class="fs-desc">CRITICAL RISK — Transaction Blocked</div>
+      </div>
+      <button class="fraud-back" onclick="dismissFraud()">← Return to Shop</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SUCCESS SCREEN ===== -->
+<div class="success-scr" id="successScreen">
+  <div class="success-inner">
+    <div class="success-hdr">
+      <div class="success-ico">✓</div>
+      <h2>Payment Successful!</h2>
+      <p>Your order has been placed and is being prepared for shipping.</p>
+    </div>
+    <div class="order-card" id="orderCard"></div>
+    <div class="purchased-items" id="purchasedSection"></div>
+    <div class="rec-sec" id="recsSection"></div>
+    <button class="continue-btn" onclick="continueShopping()">Continue Shopping</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================================================================
+//  DATA
+// ===================================================================
+const PRODUCTS = [
+  // Electronics
+  {id:1,name:"TrueSound Pro Wireless Earbuds",cat:"electronics",price:1299,orig:1899,img:"https://picsum.photos/seed/elec1/400/300",rating:4.8,sold:2341,badge:"hot"},
+  {id:2,name:"SmartFit Watch X3 Smartwatch",cat:"electronics",price:2499,orig:3299,img:"https://picsum.photos/seed/elec2/400/300",rating:4.6,sold:1876,badge:"sale"},
+  {id:3,name:"BoomBox Mini Bluetooth Speaker",cat:"electronics",price:699,orig:999,img:"https://picsum.photos/seed/elec3/400/300",rating:4.5,sold:3102,badge:null},
+  {id:4,name:"UltraCharge 20000mAh Power Bank",cat:"electronics",price:549,orig:799,img:"https://picsum.photos/seed/elec4/400/300",rating:4.7,sold:4231,badge:null},
+  {id:5,name:"ClearView 4K USB Webcam Pro",cat:"electronics",price:899,orig:1199,img:"https://picsum.photos/seed/elec5/400/300",rating:4.4,sold:987,badge:"new"},
+  // Fashion
+  {id:6,name:"StreetWave Oversized Hoodie",cat:"fashion",price:599,orig:899,img:"https://picsum.photos/seed/fash1/400/300",rating:4.9,sold:5678,badge:"hot"},
+  {id:7,name:"AirStep Running Sneakers",cat:"fashion",price:1499,orig:2199,img:"https://picsum.photos/seed/fash2/400/300",rating:4.7,sold:3421,badge:null},
+  {id:8,name:"UrbanGlide Crossbody Bag",cat:"fashion",price:799,orig:1099,img:"https://picsum.photos/seed/fash3/400/300",rating:4.6,sold:2109,badge:null},
+  {id:9,name:"SunRay Gradient Sunglasses",cat:"fashion",price:399,orig:599,img:"https://picsum.photos/seed/fash4/400/300",rating:4.5,sold:1876,badge:"sale"},
+  {id:10,name:"FlexFit Adjustable Sports Cap",cat:"fashion",price:249,orig:399,img:"https://picsum.photos/seed/fash5/400/300",rating:4.3,sold:4532,badge:null},
+  // Home
+  {id:11,name:"AromaLux Scented Candle Gift Set",cat:"home",price:449,orig:699,img:"https://picsum.photos/seed/home1/400/300",rating:4.8,sold:2876,badge:null},
+  {id:12,name:"CloudSoft Memory Foam Pillow",cat:"home",price:899,orig:1299,img:"https://picsum.photos/seed/home2/400/300",rating:4.9,sold:1987,badge:"hot"},
+  {id:13,name:"GreenThumb Ceramic Plant Pot",cat:"home",price:299,orig:449,img:"https://picsum.photos/seed/home3/400/300",rating:4.5,sold:3456,badge:null},
+  {id:14,name:"Nordic Minimal Wall Clock",cat:"home",price:699,orig:999,img:"https://picsum.photos/seed/home4/400/300",rating:4.6,sold:1543,badge:"new"},
+  {id:15,name:"LumiArc LED Adjustable Desk Lamp",cat:"home",price:1099,orig:1499,img:"https://picsum.photos/seed/home5/400/300",rating:4.7,sold:2234,badge:null},
+  // Beauty
+  {id:16,name:"GlowUp Vitamin C Face Serum 30ml",cat:"beauty",price:899,orig:1299,img:"https://picsum.photos/seed/beau1/400/300",rating:4.8,sold:6234,badge:"hot"},
+  {id:17,name:"VelvetKiss Lip Gloss Set 6 Colors",cat:"beauty",price:349,orig:499,img:"https://picsum.photos/seed/beau2/400/300",rating:4.7,sold:4321,badge:null},
+  {id:18,name:"UVShield SPF50+ Sunscreen 50ml",cat:"beauty",price:499,orig:699,img:"https://picsum.photos/seed/beau3/400/300",rating:4.6,sold:3876,badge:null},
+  {id:19,name:"HydraGlow Sheet Mask Pack 10pcs",cat:"beauty",price:249,orig:399,img:"https://picsum.photos/seed/beau4/400/300",rating:4.5,sold:5432,badge:"sale"},
+  {id:20,name:"NightBloom Eau de Parfum 50ml",cat:"beauty",price:1499,orig:1999,img:"https://picsum.photos/seed/beau5/400/300",rating:4.9,sold:2109,badge:null},
+  // Sports
+  {id:21,name:"ZenFlow Premium Yoga Mat 6mm",cat:"sports",price:749,orig:1099,img:"https://picsum.photos/seed/sprt1/400/300",rating:4.8,sold:3219,badge:null},
+  {id:22,name:"HydroMax Insulated Water Bottle 1L",cat:"sports",price:399,orig:599,img:"https://picsum.photos/seed/sprt2/400/300",rating:4.7,sold:7834,badge:"hot"},
+  {id:23,name:"PowerFlex Resistance Band Set 5pcs",cat:"sports",price:349,orig:499,img:"https://picsum.photos/seed/sprt3/400/300",rating:4.6,sold:4567,badge:null},
+  {id:24,name:"SpeedForce Trail Running Shoes",cat:"sports",price:2899,orig:3999,img:"https://picsum.photos/seed/sprt4/400/300",rating:4.8,sold:1432,badge:"new"},
+  {id:25,name:"RhythmPro Digital Jump Rope",cat:"sports",price:299,orig:449,img:"https://picsum.photos/seed/sprt5/400/300",rating:4.4,sold:5678,badge:null},
+  // Food
+  {id:26,name:"BrewCraft Single Origin Coffee 250g",cat:"food",price:499,orig:699,img:"https://picsum.photos/seed/food1/400/300",rating:4.9,sold:4321,badge:"new"},
+  {id:27,name:"NutriBar Protein Bars Box 12pcs",cat:"food",price:399,orig:549,img:"https://picsum.photos/seed/food2/400/300",rating:4.6,sold:6789,badge:"hot"},
+  {id:28,name:"GoldenFlow Raw Honey 350g",cat:"food",price:299,orig:449,img:"https://picsum.photos/seed/food3/400/300",rating:4.8,sold:3456,badge:null},
+  {id:29,name:"ZenMatcha Premium Powder 100g",cat:"food",price:449,orig:599,img:"https://picsum.photos/seed/food4/400/300",rating:4.7,sold:2987,badge:"sale"},
+  {id:30,name:"SunGrain Artisan Granola Mix 400g",cat:"food",price:349,orig:499,img:"https://picsum.photos/seed/food5/400/300",rating:4.5,sold:3210,badge:null},
+];
+
+const CATEGORIES = [
+  {key:'all',label:'All Items',icon:'🛍️'},
+  {key:'electronics',label:'Electronics',icon:'📱'},
+  {key:'fashion',label:'Fashion',icon:'👕'},
+  {key:'home',label:'Home & Living',icon:'🏠'},
+  {key:'beauty',label:'Beauty',icon:'✨'},
+  {key:'sports',label:'Sports',icon:'🏃'},
+  {key:'food',label:'Food & Grocery',icon:'🍱'},
+];
+
+const CAT_COLORS = {
+  electronics:'#4361ee',fashion:'#f72585',home:'#3a86ff',
+  beauty:'#ff006e',sports:'#fb5607',food:'#8338ec'
+};
+
+const VALID_PREFIXES = ['4341','8788','1234','5454'];
+
+const INITIAL_TXN = [
+  {id:'SZ-001',date:'Jan 14',customer:'Maria Santos',items:[1,22],amount:1698,card:'4341 ●●●● ●●●● 2891',status:'success'},
+  {id:'SZ-002',date:'Jan 14',customer:'Anonymous',items:[20],amount:1499,card:'9821 ●●●● ●●●● 4523',status:'fraud'},
+  {id:'SZ-003',date:'Jan 15',customer:'Ana Reyes',items:[16,19],amount:1148,card:'5454 ●●●● ●●●● 7734',status:'success'},
+  {id:'SZ-004',date:'Jan 15',customer:'Jose Bautista',items:[2,11],amount:2948,card:'1234 ●●●● ●●●● 1122',status:'success'},
+  {id:'SZ-005',date:'Jan 16',customer:'Anonymous',items:[16],amount:899,card:'7654 ●●●● ●●●● 9011',status:'fraud'},
+  {id:'SZ-006',date:'Jan 16',customer:'Lisa Ramos',items:[24,21],amount:3648,card:'8788 ●●●● ●●●● 3341',status:'success'},
+  {id:'SZ-007',date:'Jan 17',customer:'Pedro Cruz',items:[3,10],amount:948,card:'4341 ●●●● ●●●● 5509',status:'success'},
+  {id:'SZ-008',date:'Jan 17',customer:'Anonymous',items:[24],amount:2899,card:'3310 ●●●● ●●●● 7821',status:'fraud'},
+  {id:'SZ-009',date:'Jan 18',customer:'Rosa Mendoza',items:[27,26,30],amount:1247,card:'5454 ●●●● ●●●● 0012',status:'success'},
+  {id:'SZ-010',date:'Jan 18',customer:'Marco Diaz',items:[7,23],amount:1848,card:'1234 ●●●● ●●●● 8843',status:'success'},
+  {id:'SZ-011',date:'Jan 19',customer:'Anonymous',items:[8,17],amount:1148,card:'6699 ●●●● ●●●● 2234',status:'fraud'},
+  {id:'SZ-012',date:'Jan 19',customer:'Elena Torres',items:[15,12],amount:1998,card:'8788 ●●●● ●●●● 6670',status:'success'},
+  {id:'SZ-013',date:'Jan 20',customer:'Ramon Flores',items:[26,29],amount:948,card:'4341 ●●●● ●●●● 1129',status:'success'},
+  {id:'SZ-014',date:'Jan 20',customer:'Anonymous',items:[2],amount:2499,card:'2233 ●●●● ●●●● 5599',status:'fraud'},
+  {id:'SZ-015',date:'Jan 21',customer:'Cris Nakamura',items:[18,19,17],amount:1097,card:'1234 ●●●● ●●●● 9934',status:'success'},
+  {id:'SZ-016',date:'Jan 21',customer:'Joy Espiritu',items:[6,9],amount:998,card:'8788 ●●●● ●●●● 4412',status:'success'},
+  {id:'SZ-017',date:'Jan 22',customer:'Anonymous',items:[1,2],amount:3798,card:'5533 ●●●● ●●●● 8871',status:'fraud'},
+  {id:'SZ-018',date:'Jan 22',customer:'Nina Castillo',items:[22,25,28],amount:997,card:'4341 ●●●● ●●●● 7763',status:'success'},
+  {id:'SZ-019',date:'Jan 23',customer:'Bong Tolentino',items:[14,13],amount:998,card:'5454 ●●●● ●●●● 3390',status:'success'},
+  {id:'SZ-020',date:'Jan 23',customer:'Clara Navarro',items:[20,16,18],amount:2897,card:'1234 ●●●● ●●●● 2281',status:'success'},
+];
+
+// ===================================================================
+//  STATE
+// ===================================================================
+let cart = [];
+let currentFilter = 'all';
+let searchQuery = '';
+let checkoutStep = 1;
+let shippingData = {};
+let salesUnits = {};
+let transactions = [...INITIAL_TXN];
+let charts = {bar:null,doughnut:null,line:null,fraudPie:null};
+let pendingCard = '';
+let pendingItems = [];
+let orderCount = 1;
+
+// ===================================================================
+//  INIT
+// ===================================================================
+function init(){
+  PRODUCTS.forEach(p => salesUnits[p.id] = p.sold);
+  renderCats();
+  renderProducts();
+}
+
+// ===================================================================
+//  RENDER CATEGORIES
+// ===================================================================
+function renderCats(){
+  const el = document.getElementById('catChips');
+  el.innerHTML = CATEGORIES.map(c=>`
+    <div class="cat-chip ${currentFilter===c.key?'active':''}" onclick="filterCat('${c.key}')">
+      <span class="chip-ico">${c.icon}</span>${c.label}
+    </div>
+  `).join('');
+}
+
+// ===================================================================
+//  RENDER PRODUCTS
+// ===================================================================
+function renderProducts(){
+  let prods = PRODUCTS;
+  if(currentFilter !== 'all') prods = prods.filter(p=>p.cat===currentFilter);
+  if(searchQuery) prods = prods.filter(p=>p.name.toLowerCase().includes(searchQuery.toLowerCase())||p.cat.includes(searchQuery.toLowerCase()));
+  const grid = document.getElementById('prodGrid');
+  const title = document.getElementById('prodSecTitle');
+  const catObj = CATEGORIES.find(c=>c.key===currentFilter);
+  title.textContent = catObj ? (catObj.icon+' '+catObj.label) : 'All Products';
+  if(!prods.length){
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1">😕 No products found for "<strong>${searchQuery||currentFilter}</strong>"</div>`;
+    return;
+  }
+  grid.innerHTML = prods.map(p=>{
+    const disc = Math.round((1-p.price/p.orig)*100);
+    return `
+    <div class="prod-card" onclick="">
+      ${p.badge?`<div class="prod-badge ${p.badge}">${p.badge==='hot'?'🔥 HOT':p.badge==='new'?'✨ NEW':'💥 SALE'}</div>`:''}
+      <img class="prod-img" src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${p.id}x/400/300'">
+      <div class="prod-info">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-price">₱${p.price.toLocaleString()}</div>
+        <div><span class="prod-orig">₱${p.orig.toLocaleString()}</span><span class="prod-disc">-${disc}%</span></div>
+        <div class="prod-meta">
+          <span class="stars">${starStr(p.rating)}</span>
+          <span>${p.rating}</span>
+          <span style="margin-left:auto">${(salesUnits[p.id]||p.sold).toLocaleString()} sold</span>
+        </div>
+        <button class="atc-btn" onclick="addToCart(${p.id},event)">🛒 Add to Cart</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function starStr(r){
+  const full=Math.floor(r),half=r%1>=.5;
+  return '★'.repeat(full)+(half?'½':'')+'☆'.repeat(5-full-(half?1:0));
+}
+
+// ===================================================================
+//  FILTERING / SEARCH
+// ===================================================================
+function filterCat(cat){
+  currentFilter=cat;
+  searchQuery='';
+  document.getElementById('searchInput').value='';
+  renderCats();
+  renderProducts();
+}
+
+function handleSearch(q){
+  searchQuery=q;
+  currentFilter='all';
+  renderCats();
+  renderProducts();
+}
+
+// ===================================================================
+//  CART
+// ===================================================================
+function addToCart(id, evt){
+  evt && evt.stopPropagation();
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const existing = cart.find(x=>x.id===id);
+  if(existing){
+    existing.qty++;
+  } else {
+    cart.push({...p,qty:1});
+  }
+  updateCartUI();
+  showToast(`✅ ${p.name.substring(0,30)}… added to cart`,'success');
+  flyAnimation(evt,id);
+}
+
+function removeFromCart(id){
+  cart = cart.filter(x=>x.id!==id);
+  updateCartUI();
+  renderCart();
+}
+
+function updateQty(id, delta){
+  const item = cart.find(x=>x.id===id);
+  if(!item) return;
+  item.qty = Math.max(1, item.qty+delta);
+  updateCartUI();
+  renderCart();
+}
+
+function getCartTotal(){
+  return cart.reduce((s,i)=>s+i.price*i.qty,0);
+}
+
+function getCartCount(){
+  return cart.reduce((s,i)=>s+i.qty,0);
+}
+
+function updateCartUI(){
+  const cnt = getCartCount();
+  const el = document.getElementById('cartCount');
+  el.textContent = cnt;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+  document.getElementById('cartItemBadge').textContent = cnt+' item'+(cnt!==1?'s':'');
+  document.getElementById('cartSubtotal').textContent = '₱'+getCartTotal().toLocaleString();
+  document.getElementById('cartTotal').textContent = '₱'+getCartTotal().toLocaleString();
+  document.getElementById('checkoutBtn').disabled = cart.length===0;
+  renderCart();
+  renderProducts(); // update sold counts display
+}
+
+function renderCart(){
+  const el = document.getElementById('cartItems');
+  if(!cart.length){
+    el.innerHTML = `<div class="cart-empty"><div class="ce-ico">🛒</div><p>Your cart is empty</p><small>Add items to get started!</small></div>`;
+    return;
+  }
+  el.innerHTML = cart.map(item=>`
+    <div class="cart-item">
+      <img class="ci-img" src="${item.img}" alt="${item.name}" onerror="this.src='https://picsum.photos/seed/${item.id}y/72/72'">
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">₱${(item.price*item.qty).toLocaleString()}</div>
+        <div class="ci-qty">
+          <button class="qty-btn" onclick="updateQty(${item.id},-1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="updateQty(${item.id},1)">+</button>
+          <span style="font-size:12px;color:var(--text-l);margin-left:4px">@ ₱${item.price.toLocaleString()}</span>
+        </div>
+      </div>
+      <button class="ci-del" onclick="removeFromCart(${item.id})" title="Remove">🗑</button>
+    </div>
+  `).join('');
+}
+
+// ===================================================================
+//  CART SIDEBAR
+// ===================================================================
+function openCart(){
+  document.getElementById('cartOverlay').classList.add('open');
+  document.getElementById('cartSidebar').classList.add('open');
+  renderCart();
+}
+
+function closeCart(){
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.getElementById('cartSidebar').classList.remove('open');
+}
+
+// ===================================================================
+//  CHECKOUT
+// ===================================================================
+function openCheckout(){
+  closeCart();
+  checkoutStep=1;
+  document.getElementById('checkoutModal').classList.add('open');
+  renderCheckoutStep();
+}
+
+function closeCheckout(){
+  document.getElementById('checkoutModal').classList.remove('open');
+}
+
+function renderCheckoutStep(){
+  const steps=['Review Order','Shipping Info','Payment'];
+  const stepsHtml = `<div class="steps">${steps.map((s,i)=>`
+    <div class="step ${i+1===checkoutStep?'active':i+1<checkoutStep?'done':''}">
+      <div class="step-n">${i+1<checkoutStep?'✓':(i+1)}</div>
+      <div class="step-lbl">${s}</div>
+    </div>`).join('')}</div>`;
+
+  document.getElementById('modalTitle').textContent = ['','Review Order','Shipping Info','Payment Details'][checkoutStep];
+
+  if(checkoutStep===1){
+    document.getElementById('modalBody').innerHTML = stepsHtml+`
+      <div class="os-prod-list">
+        ${cart.map(item=>`
+          <div class="os-prod">
+            <img src="${item.img}" onerror="this.src='https://picsum.photos/seed/${item.id}z/40/40'">
+            <div style="flex:1"><div style="font-weight:600;font-size:13px">${item.name}</div><div style="font-size:12px;color:var(--text-l)">Qty: ${item.qty}</div></div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;color:var(--primary)">₱${(item.price*item.qty).toLocaleString()}</div>
+          </div>`).join('')}
+      </div>
+      <div class="os-item"><span>Subtotal (${getCartCount()} items)</span><span>₱${getCartTotal().toLocaleString()}</span></div>
+      <div class="os-item"><span>Shipping</span><span style="color:var(--success);font-weight:700">FREE</span></div>
+      <div class="os-item total"><span>Total Amount</span><span>₱${getCartTotal().toLocaleString()}</span></div>
+    `;
+    document.getElementById('modalFoot').innerHTML=`
+      <button class="btn-sec" onclick="closeCheckout()">Cancel</button>
+      <button class="btn-pri" onclick="nextStep()">Continue to Shipping →</button>`;
+
+  } else if(checkoutStep===2){
+    const sd = shippingData;
+    document.getElementById('modalBody').innerHTML = stepsHtml+`
+      <div class="fg"><label class="fl">Full Name</label><input class="fi" id="shipName" placeholder="e.g. Juan dela Cruz" value="${sd.name||''}"></div>
+      <div class="fg"><label class="fl">Phone Number</label><input class="fi" id="shipPhone" placeholder="+63 900 000 0000" value="${sd.phone||''}"></div>
+      <div class="fg"><label class="fl">Complete Address</label><input class="fi" id="shipAddr" placeholder="House #, Street, Barangay" value="${sd.addr||''}"></div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">City / Municipality</label><input class="fi" id="shipCity" placeholder="e.g. Tuguegarao" value="${sd.city||''}"></div>
+        <div class="fg"><label class="fl">Province</label><input class="fi" id="shipProv" placeholder="e.g. Cagayan" value="${sd.prov||''}"></div>
+      </div>
+      <div class="fg"><label class="fl">ZIP Code</label><input class="fi" id="shipZip" placeholder="3500" value="${sd.zip||''}" style="max-width:140px"></div>
+    `;
+    document.getElementById('modalFoot').innerHTML=`
+      <button class="btn-sec" onclick="prevStep()">← Back</button>
+      <button class="btn-pri" onclick="nextStep()">Continue to Payment →</button>`;
+
+  } else if(checkoutStep===3){
+    document.getElementById('modalBody').innerHTML = stepsHtml+`
+      <div style="background:#fff8f0;border:1.5px solid #ffd0b5;border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:13px;color:#b85c00;display:flex;gap:8px;align-items:flex-start">
+        <span style="font-size:18px">🔒</span>
+        <div><strong>Secure Payment</strong><br>All transactions are encrypted and verified by ShopZen Shield™. 
+        <br><strong>Accepted prefixes:</strong> Cards starting with 4341, 8788, 1234, or 5454 are authorized.</div>
+      </div>
+      <div class="fg">
+        <label class="fl">Card Number</label>
+        <div class="card-wrap">
+          <input class="fi" id="cardNum" placeholder="●●●● ●●●● ●●●● ●●●●" maxlength="19" oninput="formatCard(this)" autocomplete="off" style="letter-spacing:2px;font-family:'Poppins',sans-serif;font-size:16px">
+          <div class="card-ico-row">💳</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-l);margin-top:4px">Enter 16-digit card number with spaces (XXXX XXXX XXXX XXXX)</div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Expiry Date</label><input class="fi" id="cardExp" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)"></div>
+        <div class="fg"><label class="fl">CVV</label><input class="fi" id="cardCVV" placeholder="●●●" maxlength="3" type="password"></div>
+      </div>
+      <div class="fg"><label class="fl">Name on Card</label><input class="fi" id="cardName" placeholder="As printed on card"></div>
+      <div style="margin-top:6px;padding:12px 14px;background:#f8f8f8;border-radius:8px;font-size:13px;display:flex;justify-content:space-between;align-items:center">
+        <span style="color:var(--text-m)">Order Total</span>
+        <span style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;color:var(--primary)">₱${getCartTotal().toLocaleString()}</span>
+      </div>
+    `;
+    document.getElementById('modalFoot').innerHTML=`
+      <button class="btn-sec" onclick="prevStep()">← Back</button>
+      <button class="btn-pri" onclick="submitPayment()">🔒 Pay ₱${getCartTotal().toLocaleString()}</button>`;
+  }
+}
+
+function nextStep(){
+  if(checkoutStep===2){
+    const name=document.getElementById('shipName').value.trim();
+    const phone=document.getElementById('shipPhone').value.trim();
+    const addr=document.getElementById('shipAddr').value.trim();
+    const city=document.getElementById('shipCity').value.trim();
+    if(!name||!phone||!addr||!city){showToast('⚠️ Please fill in all required fields','error');return;}
+    shippingData={name,phone,addr,city,
+      prov:document.getElementById('shipProv').value,
+      zip:document.getElementById('shipZip').value};
+  }
+  checkoutStep++;
+  renderCheckoutStep();
+}
+
+function prevStep(){
+  checkoutStep--;
+  renderCheckoutStep();
+}
+
+function formatCard(el){
+  let v=el.value.replace(/\D/g,'').substring(0,16);
+  el.value=v.match(/.{1,4}/g)?.join(' ')||v;
+}
+
+function formatExpiry(el){
+  let v=el.value.replace(/\D/g,'').substring(0,4);
+  if(v.length>2) v=v.substring(0,2)+' / '+v.substring(2);
+  el.value=v;
+}
+
+function submitPayment(){
+  const cardNum=document.getElementById('cardNum')?.value||'';
+  const expiry=document.getElementById('cardExp')?.value||'';
+  const cvv=document.getElementById('cardCVV')?.value||'';
+  const cardName=document.getElementById('cardName')?.value?.trim()||'';
+  if(!cardNum||!expiry||!cvv||!cardName){showToast('⚠️ Please fill in all payment details','error');return;}
+  const clean=cardNum.replace(/\s/g,'');
+  if(clean.length!==16){showToast('⚠️ Please enter a valid 16-digit card number','error');return;}
+  pendingCard=cardNum;
+  pendingItems=[...cart];
+  closeCheckout();
+  startFraudDetection(cardNum);
+}
+
+// ===================================================================
+//  FRAUD DETECTION
+// ===================================================================
+function isValidCard(cardNum){
+  const clean=cardNum.replace(/\s/g,'');
+  if(clean.length!==16)return false;
+  return VALID_PREFIXES.some(p=>clean.startsWith(p));
+}
+
+function startFraudDetection(cardNum){
+  const scr=document.getElementById('fraudScreen');
+  const loading=document.getElementById('fraudLoading');
+  const result=document.getElementById('fraudResult');
+  const progBar=document.getElementById('fraudProgBar');
+  const titleEl=document.getElementById('fraudLoadTitle');
+  const subEl=document.getElementById('fraudLoadSub');
+
+  scr.classList.add('active');
+  loading.style.display='block';
+  result.classList.remove('show');
+  progBar.style.width='0%';
+
+  const steps=[
+    {t:0,    msg:'Connecting to payment gateway…',sub:'Establishing secure TLS connection'},
+    {t:600,  msg:'Verifying card number…',sub:'Checking card format and issuer database'},
+    {t:1300, msg:'Cross-referencing fraud database…',sub:'Scanning 47M+ flagged transactions'},
+    {t:2000, msg:'Analyzing transaction patterns…',sub:'Running AI behavioral analysis'},
+    {t:2700, msg:'Finalizing security check…',sub:'Generating risk assessment report'},
+  ];
+
+  steps.forEach((s,i)=>{
+    setTimeout(()=>{
+      titleEl.textContent=s.msg;
+      subEl.textContent=s.sub;
+      progBar.style.width=((i+1)/steps.length*85)+'%';
+    },s.t);
+  });
+
+  setTimeout(()=>{
+    progBar.style.width='100%';
+    setTimeout(()=>{
+      loading.style.display='none';
+      const valid=isValidCard(cardNum);
+      if(valid){
+        scr.classList.remove('active');
+        recordTransaction(cardNum,true);
+        showSuccessScreen(pendingItems,cardNum);
+        clearCart();
+      } else {
+        showFraudResult(cardNum);
+        recordTransaction(cardNum,false);
+      }
+    },400);
+  },3200);
+}
+
+function showFraudResult(cardNum){
+  const result=document.getElementById('fraudResult');
+  const details=document.getElementById('fraudDetails');
+  const scoreEl=document.getElementById('fraudScore');
+  const clean=cardNum.replace(/\s/g,'');
+  const prefix=clean.substring(0,4);
+  const score=Math.floor(Math.random()*15)+82;
+
+  details.innerHTML=`
+    <div class="fdr"><span class="fdr-lbl">Card Number</span><span class="fdr-val">${cardNum.substring(0,4)} ●●●● ●●●● ${cardNum.slice(-4)}</span></div>
+    <div class="fdr"><span class="fdr-lbl">Card Format</span><span class="fdr-val ok">16-digit ✓ Valid Format</span></div>
+    <div class="fdr"><span class="fdr-lbl">BIN Prefix</span><span class="fdr-val">${prefix} — UNREGISTERED ISSUER</span></div>
+    <div class="fdr"><span class="fdr-lbl">Authorized Prefixes</span><span class="fdr-val warn">4341 · 8788 · 1234 · 5454</span></div>
+    <div class="fdr"><span class="fdr-lbl">Issuing Bank</span><span class="fdr-val">SUSPICIOUS — No BIN match found</span></div>
+    <div class="fdr"><span class="fdr-lbl">IP Geolocation</span><span class="fdr-val warn">Flagged for review</span></div>
+    <div class="fdr"><span class="fdr-lbl">Transaction Amount</span><span class="fdr-val">₱${pendingItems.reduce((s,i)=>s+i.price*i.qty,0).toLocaleString()}</span></div>
+    <div class="fdr"><span class="fdr-lbl">ShopZen Shield™</span><span class="fdr-val">🚫 TRANSACTION BLOCKED</span></div>
+  `;
+  scoreEl.textContent=score+'/100';
+  result.classList.add('show');
+}
+
+function dismissFraud(){
+  document.getElementById('fraudScreen').classList.remove('active');
+  document.getElementById('fraudResult').classList.remove('show');
+}
+
+// ===================================================================
+//  SUCCESS SCREEN
+// ===================================================================
+function showSuccessScreen(items, cardNum){
+  const scr=document.getElementById('successScreen');
+  scr.classList.add('active');
+  const orderId='SZ-'+String(Date.now()).slice(-6);
+  const today=new Date();
+  const delivery=new Date(today.getTime()+4*24*3600*1000);
+  const opts={month:'short',day:'numeric'};
+
+  document.getElementById('orderCard').innerHTML=`
+    <div class="order-id">Order #${orderId} ✓ Confirmed</div>
+    <div class="order-meta">
+      <span>📅 <strong>Order Date:</strong> ${today.toLocaleDateString('en-PH',opts)}</span>
+      <span>🚚 <strong>Est. Delivery:</strong> ${delivery.toLocaleDateString('en-PH',opts)}</span>
+      <span>💳 <strong>Card:</strong> ${cardNum.substring(0,4)} ●●●● ●●●● ${cardNum.slice(-4)}</span>
+      <span>💰 <strong>Total Paid:</strong> ₱${items.reduce((s,i)=>s+i.price*i.qty,0).toLocaleString()}</span>
+    </div>
+  `;
+
+  document.getElementById('purchasedSection').innerHTML=`
+    <h3>📦 Items Purchased (${items.reduce((s,i)=>s+i.qty,0)})</h3>
+    <div class="purchased-grid">
+      ${items.map(item=>`
+        <div class="purchased-card">
+          <img src="${item.img}" alt="${item.name}">
+          <div class="pc-info">
+            <div class="pc-name">${item.name}</div>
+            <div class="pc-price">₱${(item.price*item.qty).toLocaleString()} <span style="font-size:11px;color:var(--text-l);font-family:'Outfit';font-weight:400">×${item.qty}</span></div>
+          </div>
+        </div>`).join('')}
+    </div>
+  `;
+
+  const recs = getRecommendations(items);
+  document.getElementById('recsSection').innerHTML=`
+    <h3>💡 Recommended for You</h3>
+    <p>Based on your purchase, you might also like these:</p>
+    <div class="prod-grid">
+      ${recs.map(p=>{
+        const disc=Math.round((1-p.price/p.orig)*100);
+        return `<div class="prod-card" style="cursor:pointer">
+          ${p.badge?`<div class="prod-badge ${p.badge}">${p.badge==='hot'?'🔥 HOT':p.badge==='new'?'✨ NEW':'💥 SALE'}</div>`:''}
+          <img class="prod-img" src="${p.img}" alt="${p.name}" onerror="this.src='https://picsum.photos/seed/${p.id}r/400/300'">
+          <div class="prod-info">
+            <div class="prod-name">${p.name}</div>
+            <div class="prod-price">₱${p.price.toLocaleString()}</div>
+            <div><span class="prod-orig">₱${p.orig.toLocaleString()}</span><span class="prod-disc">-${disc}%</span></div>
+            <div class="prod-meta"><span class="stars">${starStr(p.rating)}</span><span>${p.rating}</span></div>
+            <button class="atc-btn" onclick="addToCart(${p.id},event);showToast('✅ Added!','success')">🛒 Add to Cart</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function getRecommendations(items){
+  const cats=[...new Set(items.map(i=>i.cat))];
+  const boughtIds=new Set(items.map(i=>i.id));
+  // Prioritize same category, then others
+  let recs=PRODUCTS.filter(p=>!boughtIds.has(p.id));
+  const sameCat=recs.filter(p=>cats.includes(p.cat));
+  const otherCat=recs.filter(p=>!cats.includes(p.cat));
+  // Shuffle and mix
+  const shuffled=[...sameCat.sort(()=>.5-Math.random()).slice(0,4),
+                  ...otherCat.sort(()=>.5-Math.random()).slice(0,4)];
+  return shuffled.slice(0,8);
+}
+
+function continueShopping(){
+  document.getElementById('successScreen').classList.remove('active');
+  switchTab('shop');
+}
+
+function clearCart(){
+  cart=[];
+  updateCartUI();
+}
+
+// ===================================================================
+//  RECORD TRANSACTION
+// ===================================================================
+function recordTransaction(cardNum,success){
+  const items=pendingItems;
+  items.forEach(item=>{
+    if(success) salesUnits[item.id]=(salesUnits[item.id]||0)+item.qty;
+  });
+  const id='SZ-'+String(Date.now()).slice(-5);
+  const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+  transactions.unshift({
+    id,date:'Just now',customer:shippingData.name||'Customer',
+    items:items.map(i=>i.id),amount:total,
+    card:cardNum.substring(0,4)+' ●●●● ●●●● '+cardNum.slice(-4),
+    status:success?'success':'fraud'
+  });
+}
+
+// ===================================================================
+//  TAB SWITCHING
+// ===================================================================
+function switchTab(tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='analytics'){
+    setTimeout(()=>{
+      renderAnalytics();
+    },50);
+  }
+}
+
+// ===================================================================
+//  ANALYTICS
+// ===================================================================
+function renderAnalytics(){
+  document.getElementById('lastUpdated').textContent=new Date().toLocaleTimeString();
+
+  // Compute stats
+  const totalOrders=Object.values(salesUnits).reduce((a,b)=>a+b,0);
+  const totalRevenue=PRODUCTS.reduce((s,p)=>s+(salesUnits[p.id]||0)*p.price,0);
+  const fraudCount=transactions.filter(t=>t.status==='fraud').length;
+  const fraudRate=(transactions.length>0?(fraudCount/transactions.length*100).toFixed(1):0);
+
+  document.getElementById('statCards').innerHTML=`
+    <div class="stat-c"><div class="stat-ic">💰</div><div class="stat-lbl">Total Revenue</div><div class="stat-val">₱${(totalRevenue/1000).toFixed(0)}K</div><div class="stat-chg">↑ +12.4% this month</div></div>
+    <div class="stat-c"><div class="stat-ic">📦</div><div class="stat-lbl">Total Units Sold</div><div class="stat-val">${totalOrders.toLocaleString()}</div><div class="stat-chg">↑ +8.7% vs last month</div></div>
+    <div class="stat-c"><div class="stat-ic">🚨</div><div class="stat-lbl">Fraud Attempts</div><div class="stat-val">${fraudCount}</div><div class="stat-chg down">↑ +2 new attempts</div></div>
+    <div class="stat-c"><div class="stat-ic">🛡️</div><div class="stat-lbl">Fraud Rate</div><div class="stat-val">${fraudRate}%</div><div class="stat-chg ${fraudRate>5?'down':''}">Protection: 100%</div></div>
+  `;
+
+  // Fraud meter
+  const successCount=transactions.filter(t=>t.status==='success').length;
+  document.getElementById('fm-success').textContent=successCount;
+  document.getElementById('fm-fraud').textContent=fraudCount;
+  document.getElementById('fm-rate').textContent=fraudRate+'%';
+
+  // Category breakdown
+  const catTotals={};
+  CATEGORIES.slice(1).forEach(c=>{catTotals[c.key]=0});
+  PRODUCTS.forEach(p=>{catTotals[p.cat]=(catTotals[p.cat]||0)+(salesUnits[p.id]||0)});
+  const grandTotal=Object.values(catTotals).reduce((a,b)=>a+b,0);
+
+  const catBarsEl=document.getElementById('catBars');
+  catBarsEl.innerHTML=CATEGORIES.slice(1).map(c=>{
+    const pct=grandTotal>0?((catTotals[c.key]/grandTotal)*100).toFixed(1):0;
+    return `<div class="cat-bar-item">
+      <div class="cbi-hdr"><span class="cbi-name">${c.icon} ${c.label}</span><span class="cbi-pct">${pct}%</span></div>
+      <div class="cbi-track"><div class="cbi-fill" style="width:${pct}%;background:${CAT_COLORS[c.key]||'var(--primary)'}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Top Products Table
+  const sorted=[...PRODUCTS].sort((a,b)=>(salesUnits[b.id]||0)-(salesUnits[a.id]||0));
+  document.getElementById('topProdBody').innerHTML=sorted.slice(0,12).map((p,i)=>{
+    const units=salesUnits[p.id]||0;
+    const rev=(units*p.price).toLocaleString();
+    const rnkClass=i===0?'rnk':i===1?'rnk g2':i===2?'rnk g3':'rnk';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    return `<tr>
+      <td><span class="${rnkClass}">${medal||('#'+(i+1))}</span></td>
+      <td><img class="mini-img" src="${p.img}" onerror="this.src='https://picsum.photos/seed/${p.id}t/36/36'">${p.name}</td>
+      <td><span style="background:${CAT_COLORS[p.cat]}22;color:${CAT_COLORS[p.cat]};font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:capitalize">${p.cat}</span></td>
+      <td style="font-weight:700">${units.toLocaleString()}</td>
+      <td style="font-family:'Poppins',sans-serif;font-weight:700;color:var(--primary)">₱${rev}</td>
+      <td>${starStr(p.rating)} <span style="font-size:12px;color:var(--text-l)">${p.rating}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Transaction Log
+  document.getElementById('txnBody').innerHTML=transactions.slice(0,20).map(t=>{
+    const itemNames=t.items.slice(0,2).map(id=>{const p=PRODUCTS.find(x=>x.id===id);return p?p.name.split(' ').slice(0,3).join(' '):'Unknown'}).join(', ')+(t.items.length>2?' +more':'');
+    return `<tr>
+      <td style="font-family:'Poppins',sans-serif;font-weight:700;font-size:12px">${t.id}</td>
+      <td style="color:var(--text-l);font-size:12px">${t.date}</td>
+      <td style="font-weight:500">${t.customer}</td>
+      <td style="font-size:12px;color:var(--text-m);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemNames}</td>
+      <td style="font-family:'Poppins',sans-serif;font-weight:700">₱${t.amount.toLocaleString()}</td>
+      <td style="font-size:12px;font-family:'Poppins',sans-serif;color:var(--text-m)">${t.card}</td>
+      <td>${t.status==='fraud'?'<span class="fraud-pill">🚨 FRAUD</span>':'<span class="ok-pill">✓ SUCCESS</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  // Charts
+  renderCharts(catTotals,sorted,grandTotal,fraudCount,successCount);
+}
+
+function renderCharts(catTotals,sortedProds,grandTotal,fraudCount,successCount){
+  // Bar chart - top 10 products
+  const top10=sortedProds.slice(0,10);
+  if(charts.bar) charts.bar.destroy();
+  const barCtx=document.getElementById('barChart').getContext('2d');
+  charts.bar=new Chart(barCtx,{
+    type:'bar',
+    data:{
+      labels:top10.map(p=>p.name.split(' ').slice(0,3).join(' ')+'…'),
+      datasets:[{
+        label:'Units Sold',
+        data:top10.map(p=>salesUnits[p.id]||0),
+        backgroundColor:top10.map(p=>CAT_COLORS[p.cat]||'#EE4D2D'),
+        borderRadius:6,
+        borderSkipped:false,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Units sold: '+c.raw.toLocaleString()}}},
+      scales:{
+        y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{callback:v=>v.toLocaleString()}},
+        x:{grid:{display:false},ticks:{font:{size:11}}}
+      }
+    }
+  });
+
+  // Doughnut - category breakdown
+  const catKeys=Object.keys(catTotals);
+  if(charts.doughnut) charts.doughnut.destroy();
+  const dCtx=document.getElementById('doughnutChart').getContext('2d');
+  charts.doughnut=new Chart(dCtx,{
+    type:'doughnut',
+    data:{
+      labels:catKeys.map(k=>CATEGORIES.find(c=>c.key===k)?.label||k),
+      datasets:[{
+        data:catKeys.map(k=>catTotals[k]),
+        backgroundColor:catKeys.map(k=>CAT_COLORS[k]||'#ccc'),
+        borderWidth:2,borderColor:'#fff'
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:11},padding:12}},
+        tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw.toLocaleString()} units (${grandTotal>0?(c.raw/grandTotal*100).toFixed(1):0}%)`}}}
+    }
+  });
+
+  // Line chart - revenue trend (simulated 14-day)
+  const days=Array.from({length:14},(_,i)=>{const d=new Date();d.setDate(d.getDate()-13+i);return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})});
+  const baseRevPerDay=PRODUCTS.reduce((s,p)=>s+p.price*(salesUnits[p.id]||0),0)/365;
+  const trendData=days.map((_,i)=>Math.round(baseRevPerDay*(0.7+Math.random()*0.7)+(i>10?baseRevPerDay*.3:0)));
+  if(charts.line) charts.line.destroy();
+  const lCtx=document.getElementById('lineChart').getContext('2d');
+  charts.line=new Chart(lCtx,{
+    type:'line',
+    data:{
+      labels:days,
+      datasets:[{
+        label:'Revenue (₱)',
+        data:trendData,
+        borderColor:'#EE4D2D',backgroundColor:'rgba(238,77,45,.08)',
+        borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#EE4D2D',
+        tension:.4,fill:true
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'₱'+c.raw.toLocaleString()}}},
+      scales:{
+        y:{beginAtZero:false,grid:{color:'rgba(0,0,0,.05)'},ticks:{callback:v=>'₱'+v.toLocaleString()}},
+        x:{grid:{display:false},ticks:{maxRotation:45,font:{size:10}}}
+      }
+    }
+  });
+
+  // Fraud pie chart
+  if(charts.fraudPie) charts.fraudPie.destroy();
+  const fpCtx=document.getElementById('fraudPieChart').getContext('2d');
+  charts.fraudPie=new Chart(fpCtx,{
+    type:'pie',
+    data:{
+      labels:['Legitimate','Fraudulent'],
+      datasets:[{
+        data:[successCount,fraudCount],
+        backgroundColor:['#00b14f','#ff2d55'],
+        borderWidth:2,borderColor:'#fff'
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:12}}},
+        tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw} (${transactions.length>0?(c.raw/transactions.length*100).toFixed(1):0}%)`}}}
+    }
+  });
+}
+
+// ===================================================================
+//  TOAST
+// ===================================================================
+function showToast(msg, type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast'+(type?' '+type:'');
+  void el.offsetWidth;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ===================================================================
+//  FLY ANIMATION
+// ===================================================================
+function flyAnimation(evt, id){
+  if(!evt) return;
+  const btn=evt.target;
+  const cartBtn=document.querySelector('.cart-btn');
+  if(!btn||!cartBtn) return;
+  const btnR=btn.getBoundingClientRect();
+  const cartR=cartBtn.getBoundingClientRect();
+  const p=PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const el=document.createElement('img');
+  el.src=p.img;
+  el.style.cssText=`position:fixed;width:50px;height:50px;border-radius:50%;object-fit:cover;
+    z-index:9999;top:${btnR.top+btnR.height/2-25}px;left:${btnR.left+btnR.width/2-25}px;
+    transition:all .7s cubic-bezier(.2,.8,.6,1);pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.2)`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      el.style.top=(cartR.top+cartR.height/2-8)+'px';
+      el.style.left=(cartR.left+cartR.width/2-8)+'px';
+      el.style.width='16px';el.style.height='16px';
+      el.style.opacity='0.5';
+    });
+  });
+  setTimeout(()=>el.remove(),750);
+}
+
+// ===================================================================
+//  START
+// ===================================================================
+init();
+</script>
+</body>
+</html>
