@@ -434,6 +434,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text
       </div>
       <div class="chart-wrap" style="height:200px"><canvas id="fraudPieChart"></canvas></div>
     </div>
+    <div class="fraud-meter">
+      <div class="fm-title">📋 Fraud Type Breakdown</div>
+      <div id="fraudTypesList" style="margin-top:12px"></div>
+    </div>
   </div>
   <div class="chart-c" style="margin-bottom:22px">
     <div class="chart-ttl">Top Products Ranking</div>
@@ -474,6 +478,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text
       <span class="cta-v" id="cartTotal">₱0.00</span>
     </div>
     <button class="co-btn" id="checkoutBtn" onclick="openCheckout()" disabled>Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- PRODUCT DETAILS MODAL -->
+<div class="mod-ovl" id="productModal" onclick="closeProductModal(event)">
+  <div class="mod" style="max-width:700px" onclick="event.stopPropagation()">
+    <div class="mod-hdr">
+      <h3 id="modalProdName">Product Details</h3>
+      <button class="mod-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="mod-body" id="modalProdBody" style="overflow-y:auto;max-height:600px"></div>
   </div>
 </div>
 
@@ -534,45 +549,118 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text
 
 <script>
 // ===================================================================
-//  PRODUCT DATA — Real Unsplash images
+//  PRODUCT DATA — Real Unsplash images with reviews
 // ===================================================================
+const PRODUCT_REVIEWS = {
+  1: ["Amazing sound quality! Better than my previous earbuds - Maria R.", "Perfect for gym sessions! Sweat-resistant and comfortable. - Juan M.", "Battery life is incredible, lasts 8+ hours. Highly recommend! - Anna T.", "Great noise cancellation, worth every peso! - Carlos L."],
+  2: ["Excellent smartwatch! Tracks everything I need - Alex P.", "Sleep tracking is very accurate. Love the design! - Sofia G.", "Great value for money, works perfectly with Android - Mike D.", "Battery lasts 4 days, very impressed! - Rosa M."],
+  3: ["Powerful sound for the price! Perfect for parties - Bong T.", "Great Bluetooth range, works up to 50m away - Lisa R.", "Durable and waterproof, survived a pool party! - Cruz M.", "Best portable speaker I've used - Nina C."],
+  4: ["Finally charged my phone 3 times without dying! - Pedro J.", "Fast charging is a game changer - Elena S.", "Compact and lightweight, perfect for travel - Marco D.", "High capacity at decent price - Joy E."],
+  5: ["Crystal clear video quality for online meetings - Ramon F.", "Perfect lighting and autofocus features - Cris N.", "Professional quality at affordable price! - Bong T.", "Great customer support as well - Anna R."],
+  6: ["So comfortable and perfect for casual wear! - Teresa A.", "Quality is excellent, fabric feels premium - Victor L.", "Fits perfectly, great sizing chart! - Diana P.", "Wears well after multiple washes - Hugo M."],
+  7: ["Super comfy, great for long runs - Francesca T.", "Excellent grip, never slipped during workouts - Paul K.", "Best running shoes I've owned - Nicole S.", "Great arch support! Highly recommended - Robert C."],
+  8: ["Perfect crossbody bag, very durable! - Patricia G.", "Beautiful design, lots of compartments - Samuel R.", "Strap is comfortable even when fully loaded - Victoria L.", "Looks premium, great value - Ernest M."],
+  9: ["Stylish and UV protection! - Gloria A.", "Lightweight and comfortable to wear - Fernando B.", "Great for driving and outdoor activities - Mariana C.", "Excellent quality for the price - Sebastian T."],
+  10: ["Fits perfectly and very adjustable! - Lucia D.", "Perfect for sun protection and workouts - Adrian P.", "Durable material, won't fade - Barbara S.", "Great classic design - Domingo L."],
+  11: ["Smells amazing, really sets the mood! - Elena M.", "Clean burn, long-lasting fragrance - Xavier G.", "Beautiful packaging, great gift! - Yasmin A.", "Relaxing scent, perfect for bedtime - Zara K."],
+  12: ["Most comfortable pillow ever! - Aurora C.", "Excellent support for neck and head - Beatriz V.", "Stays cool throughout the night - Camilo H.", "Best sleep I've had in months! - Domenica F."],
+  13: ["Perfect size for my plant, looks beautiful! - Elvira J.", "Drainage is excellent, plant thrives! - Faustino M.", "Modern design, adds elegance to room - Gabriela R.", "Durable material, great quality - Hernando P."],
+  14: ["Simple and elegant design! - Irene T.", "Keeps perfect time, looks modern - Jasper L.", "Goes well with any room decor - Konstantine D.", "Well-made and sturdy - Leopold S."],
+  15: ["Perfect lighting for my desk work! - Matilda A.", "Very adjustable, easy to position - Narciso G.", "Saves so much energy, very bright - Octavia M.", "Professional quality, great for home office - Percival H."],
+  16: ["Skin transformed in 2 weeks! - Quinlan R.", "No irritation, love the results - Rebecca C.", "Worth every penny! Glowing skin - Silvano T.", "Best serum I've tried - Tabitha L."],
+  17: ["Colors are so vibrant and last long! - Ulysses M.", "Smooth application, doesn't crack - Valentina A.", "Affordable luxury lip gloss! - Willow G.", "Perfect shade variety - Xavier B."],
+  18: ["SPF works great, no burning! - Yvonne P.", "Water-resistant, great for beach - Zacharias T.", "Feels lightweight on skin - Aurora M.", "No white cast, blends beautifully - Beatrice L."],
+  19: ["My skin feels so hydrated! - Cecilia D.", "Instant glow, perfect before makeup - Dante K.", "Great value for 10 pieces! - Estella R.", "Feels luxurious, does the job - Felipe S."],
+  20: ["Long-lasting fragrance, worth it! - Gloria P.", "Elegant bottle, smells divine - Horacio T.", "Gets compliments all day - Irina M.", "Premium quality product - Joaquin A."],
+  21: ["Perfect thickness, great grip! - Karma S.", "Non-slip, lasted 2+ years - Lydia V.", "Portable and easy to clean - Magnus H.", "Best yoga mat for the price - Nora C."],
+  22: ["Keeps water cold for 8+ hours! - Oscar F.", "Durable and leak-proof design - Pamela T.", "Perfect size, doesn't take much space - Quincy M.", "Love the minimalist design! - Ramona K."],
+  23: ["Great resistance levels, very versatile! - Serena G.", "Perfect home gym addition - Thaddeus L.", "Good quality, doesn't snap - Ursula P.", "Best value resistance bands - Vaughn M."],
+  24: ["Incredible comfort and grip! - Waldorf T.", "Lightweight yet protective - Ximena A.", "Perfect for trail running! - Yale B.", "Best shoes investment ever - Zelda C."],
+  25: ["Fun and effective workout tool! - Alaina D.", "Digital counter is accurate - Bruno F.", "Durable handles, great quality - Cassandra S.", "Makes jumping rope fun again! - Daemon M."],
+  26: ["Smooth flavor, quality beans! - Eleanor P.", "Fresh roast, amazing aroma - Fabian K.", "Perfect morning brew - Georgiana R.", "Best coffee I've tasted! - Henrik L."],
+  27: ["Tasty and nutritious bars! - Imogen T.", "Perfect for post-workout - Josiah M.", "Affordable protein option - Katrina S.", "Convenient and delicious - Leander A."],
+  28: ["Natural and pure honey! - Miranda C.", "Perfect sweetness level - Nathaniel T.", "Great for baking and tea - Octavian R.", "Authentic honey taste - Priscilla M."],
+  29: ["Authentic matcha flavor! - Quinton H.", "Mixes smooth, no lumps - Roxanne L.", "Great for lattes - Silas P.", "Premium quality powder! - Tiffany K."],
+  30: ["Crunchy and delicious! - Ulysses T.", "No added sugar, still tasty - Venus M.", "Perfect breakfast cereal - Weston A.", "Fresh and nutritious - Ximena R."],
+  31: ["Ultra-fast charging! - Yara C.", "Compact design, pocket-friendly - Zeke M.", "Best charger ever! - Alec P.", "High wattage, charges fast - Brenda S."],
+  32: ["Comfortable all-day fit! - Caesar T.", "Great support for flat feet - Delores M.", "Stylish and practical - Edgar L.", "Best daily shoes! - Felicity A."],
+  33: ["Perfect for meditation! - Gideon R.", "Improves focus and clarity - Helena M.", "Smooth, pleasant taste - Igor T.", "Highly addictive in a good way! - Julianna C."],
+  34: ["Keeps drinks hot for 12 hours! - Kieran L.", "Elegant stainless steel - Luna P.", "Perfect for travel - Marcos A.", "Quality thermos! - Nadia S."],
+  35: ["Gorgeous color, lasts forever! - Oliva M.", "Professional-grade polish - Percival T.", "Thick formula, great coverage - Quilla R.", "Best nail polish yet! - Rosario K."],
+  36: ["Effective acne fighter! - Silas H.", "Clear skin in 3 weeks! - Tabby M.", "Gentle yet powerful - Ulysses A.", "Game changer for my skin! - Vanessa L."],
+  37: ["Premium taste and aroma! - Webster P.", "Perfect espresso shots - Ximena T.", "Best coffee investment - Yannick M.", "Can't start day without it! - Zephyr A."],
+  38: ["Soft and moisturizing! - Adelaide C.", "Smells wonderful - Basil L.", "Perfect for sensitive skin - Colette M.", "Love the texture! - Damian T."],
+  39: ["Excellent protection from sun! - Estelle R.", "Won't rub off easily - Finnegan K.", "Great for daily use - Giselle P.", "Affordable sun protection! - Horace M."],
+  40: ["Very refreshing scent! - Isolde T.", "Lasts all day - Jasper M.", "Amazing quality for price - Kassandra L.", "Will definitely repurchase! - Laurence A."],
+};
+
 const PRODUCTS = [
-  // Electronics
+  // Electronics (10 products)
   {id:1,name:"AirPulse Pro Wireless Earbuds",cat:"electronics",price:1299,orig:1899,img:"https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=300&fit=crop",rating:4.8,sold:2341,badge:"hot"},
   {id:2,name:"SmartFit X3 Smartwatch",cat:"electronics",price:2499,orig:3299,img:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",rating:4.6,sold:1876,badge:"sale"},
   {id:3,name:"BoomBox Mini Bluetooth Speaker",cat:"electronics",price:699,orig:999,img:"https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop",rating:4.5,sold:3102,badge:null},
   {id:4,name:"UltraCharge 20000mAh Power Bank",cat:"electronics",price:549,orig:799,img:"https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=300&fit=crop",rating:4.7,sold:4231,badge:null},
   {id:5,name:"ClearView 4K USB Webcam Pro",cat:"electronics",price:899,orig:1199,img:"https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=400&h=300&fit=crop",rating:4.4,sold:987,badge:"new"},
-  // Fashion
+  {id:31,name:"FastCharge 3.0 USB-C Cable",cat:"electronics",price:199,orig:299,img:"https://images.unsplash.com/photo-1591290621749-b35a2be5e51e?w=400&h=300&fit=crop",rating:4.9,sold:12344,badge:"hot"},
+  {id:32,name:"NeoView Portable Monitor 15.6",cat:"electronics",price:3999,orig:5499,img:"https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop",rating:4.7,sold:876,badge:"new"},
+  {id:33,name:"SoundMax Wireless Gaming Headset",cat:"electronics",price:1699,orig:2299,img:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",rating:4.6,sold:2109,badge:null},
+  {id:34,name:"ProCharger Multi-Device Hub",cat:"electronics",price:2199,orig:2999,img:"https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop",rating:4.8,sold:1543,badge:null},
+  {id:35,name:"LumiBright LED Ring Light Pro",cat:"electronics",price:1399,orig:1999,img:"https://images.unsplash.com/photo-1606986628025-35d57e735ae0?w=400&h=300&fit=crop",rating:4.5,sold:3456,badge:"sale"},
+  // Fashion (10 products)
   {id:6,name:"StreetWave Oversized Hoodie",cat:"fashion",price:599,orig:899,img:"https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&h=300&fit=crop",rating:4.9,sold:5678,badge:"hot"},
   {id:7,name:"AirStep Running Sneakers",cat:"fashion",price:1499,orig:2199,img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop",rating:4.7,sold:3421,badge:null},
   {id:8,name:"UrbanGlide Crossbody Bag",cat:"fashion",price:799,orig:1099,img:"https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=300&fit=crop",rating:4.6,sold:2109,badge:null},
   {id:9,name:"SunRay Gradient Sunglasses",cat:"fashion",price:399,orig:599,img:"https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=300&fit=crop",rating:4.5,sold:1876,badge:"sale"},
   {id:10,name:"FlexFit Adjustable Sports Cap",cat:"fashion",price:249,orig:399,img:"https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=300&fit=crop",rating:4.3,sold:4532,badge:null},
-  // Home
+  {id:32,name:"ComfortStride Walking Shoes",cat:"fashion",price:1299,orig:1799,img:"https://images.unsplash.com/photo-1608667504619-6e2fbf8bb82f?w=400&h=300&fit=crop",rating:4.7,sold:3876,badge:"new"},
+  {id:36,name:"SilkGlow Casual T-Shirt Pack",cat:"fashion",price:799,orig:1199,img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop",rating:4.4,sold:6789,badge:null},
+  {id:37,name:"ClassicDenim Premium Jeans",cat:"fashion",price:1099,orig:1499,img:"https://images.unsplash.com/photo-1542272604-787c62d465d1?w=400&h=300&fit=crop",rating:4.6,sold:4321,badge:null},
+  {id:38,name:"StylePlus Leather Belt",cat:"fashion",price:449,orig:699,img:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",rating:4.8,sold:5432,badge:"hot"},
+  {id:39,name:"VelvetShawl Premium Scarf",cat:"fashion",price:399,orig:599,img:"https://images.unsplash.com/photo-1577881985182-86ecf9f983f1?w=400&h=300&fit=crop",rating:4.5,sold:2987,badge:null},
+  // Home & Living (10 products)
   {id:11,name:"AromaLux Scented Candle Set",cat:"home",price:449,orig:699,img:"https://images.unsplash.com/photo-1602928296698-d44b99ce24af?w=400&h=300&fit=crop",rating:4.8,sold:2876,badge:null},
   {id:12,name:"CloudSoft Memory Foam Pillow",cat:"home",price:899,orig:1299,img:"https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=400&h=300&fit=crop",rating:4.9,sold:1987,badge:"hot"},
   {id:13,name:"GreenThumb Ceramic Plant Pot",cat:"home",price:299,orig:449,img:"https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=300&fit=crop",rating:4.5,sold:3456,badge:null},
   {id:14,name:"Nordic Minimal Wall Clock",cat:"home",price:699,orig:999,img:"https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=300&fit=crop",rating:4.6,sold:1543,badge:"new"},
   {id:15,name:"LumiArc LED Adjustable Desk Lamp",cat:"home",price:1099,orig:1499,img:"https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=300&fit=crop&sat=-100",rating:4.7,sold:2234,badge:null},
-  // Beauty
+  {id:40,name:"ComfortStack Bed Sheets Set",cat:"home",price:1299,orig:1899,img:"https://images.unsplash.com/photo-1555863333-ab8cc62a3c88?w=400&h=300&fit=crop",rating:4.7,sold:3210,badge:"sale"},
+  {id:41,name:"HomeGlow Wall Art Canvas",cat:"home",price:599,orig:899,img:"https://images.unsplash.com/photo-1578500494198-246f612d03b3?w=400&h=300&fit=crop",rating:4.4,sold:2345,badge:null},
+  {id:42,name:"PureAir Room Air Purifier",cat:"home",price:2499,orig:3499,img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",rating:4.8,sold:1876,badge:"hot"},
+  {id:43,name:"NightLight LED Ambient Lamp",cat:"home",price:399,orig:599,img:"https://images.unsplash.com/photo-1565636192335-14a88d7ce338?w=400&h=300&fit=crop",rating:4.6,sold:4567,badge:null},
+  {id:44,name:"ZenDot Meditation Cushion",cat:"home",price:699,orig:999,img:"https://images.unsplash.com/photo-1620166150819-6d4e5fc6e3da?w=400&h=300&fit=crop",rating:4.5,sold:2109,badge:null},
+  // Beauty & Personal Care (10 products)
   {id:16,name:"GlowUp Vitamin C Face Serum",cat:"beauty",price:899,orig:1299,img:"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=300&fit=crop",rating:4.8,sold:6234,badge:"hot"},
   {id:17,name:"VelvetKiss Lip Gloss Set 6 Colors",cat:"beauty",price:349,orig:499,img:"https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=400&h=300&fit=crop",rating:4.7,sold:4321,badge:null},
   {id:18,name:"UVShield SPF50+ Sunscreen",cat:"beauty",price:499,orig:699,img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=300&fit=crop",rating:4.6,sold:3876,badge:null},
   {id:19,name:"HydraGlow Sheet Mask Pack 10pcs",cat:"beauty",price:249,orig:399,img:"https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=300&fit=crop",rating:4.5,sold:5432,badge:"sale"},
   {id:20,name:"NightBloom Eau de Parfum 50ml",cat:"beauty",price:1499,orig:1999,img:"https://images.unsplash.com/photo-1541643600914-78b084683702?w=400&h=300&fit=crop",rating:4.9,sold:2109,badge:null},
-  // Sports
+  {id:45,name:"PowerGlow Face Moisturizer",cat:"beauty",price:749,orig:1099,img:"https://images.unsplash.com/photo-1608571423144-e619b85be334?w=400&h=300&fit=crop",rating:4.7,sold:3987,badge:"new"},
+  {id:46,name:"DeepClean Facial Cleanser",cat:"beauty",price:399,orig:599,img:"https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=300&fit=crop",rating:4.6,sold:5234,badge:null},
+  {id:47,name:"NailPerfect Gel Polish Set 6",cat:"beauty",price:449,orig:699,img:"https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=300&fit=crop",rating:4.8,sold:4109,badge:"hot"},
+  {id:48,name:"VitaC Eye Cream Anti-Aging",cat:"beauty",price:899,orig:1299,img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=300&fit=crop",rating:4.7,sold:2876,badge:null},
+  {id:49,name:"ClearSkin Acne Treatment Serum",cat:"beauty",price:599,orig:899,img:"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=300&fit=crop",rating:4.5,sold:6543,badge:"sale"},
+  // Sports & Fitness (10 products)
   {id:21,name:"ZenFlow Premium Yoga Mat 6mm",cat:"sports",price:749,orig:1099,img:"https://images.unsplash.com/photo-1601925228090-1e2f5f3e6a6c?w=400&h=300&fit=crop",rating:4.8,sold:3219,badge:null},
   {id:22,name:"HydroMax Insulated Water Bottle 1L",cat:"sports",price:399,orig:599,img:"https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=300&fit=crop",rating:4.7,sold:7834,badge:"hot"},
   {id:23,name:"PowerFlex Resistance Band Set",cat:"sports",price:349,orig:499,img:"https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400&h=300&fit=crop",rating:4.6,sold:4567,badge:null},
   {id:24,name:"SpeedForce Trail Running Shoes",cat:"sports",price:2899,orig:3999,img:"https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400&h=300&fit=crop",rating:4.8,sold:1432,badge:"new"},
   {id:25,name:"RhythmPro Digital Jump Rope",cat:"sports",price:299,orig:449,img:"https://images.unsplash.com/photo-1599058917765-a780eda07a3e?w=400&h=300&fit=crop",rating:4.4,sold:5678,badge:null},
-  // Food
+  {id:50,name:"FitTrack Smart Activity Monitor",cat:"sports",price:1799,orig:2499,img:"https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=400&h=300&fit=crop",rating:4.7,sold:2543,badge:"new"},
+  {id:51,name:"StrengthGym Dumbbells Set 2kg",cat:"sports",price:899,orig:1299,img:"https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=400&h=300&fit=crop",rating:4.6,sold:3876,badge:null},
+  {id:52,name:"CardioMax Skipping Rope Pro",cat:"sports",price:549,orig:799,img:"https://images.unsplash.com/photo-1599058917765-a780eda07a3e?w=400&h=300&fit=crop",rating:4.5,sold:4321,badge:null},
+  {id:53,name:"FlexiPull Yoga Strap Set",cat:"sports",price:299,orig:449,img:"https://images.unsplash.com/photo-1601925228090-1e2f5f3e6a6c?w=400&h=300&fit=crop",rating:4.4,sold:2987,badge:"hot"},
+  {id:54,name:"BalancePlus Stability Ball",cat:"sports",price:449,orig:699,img:"https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=400&h=300&fit=crop",rating:4.6,sold:3210,badge:null},
+  // Food & Grocery (10 products)
   {id:26,name:"BrewCraft Single Origin Coffee",cat:"food",price:499,orig:699,img:"https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop",rating:4.9,sold:4321,badge:"new"},
   {id:27,name:"NutriBar Protein Bars Box 12pcs",cat:"food",price:399,orig:549,img:"https://images.unsplash.com/photo-1622484212850-eb8ce0483e6a?w=400&h=300&fit=crop",rating:4.6,sold:6789,badge:"hot"},
   {id:28,name:"GoldenFlow Raw Honey 350g",cat:"food",price:299,orig:449,img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop",rating:4.8,sold:3456,badge:null},
   {id:29,name:"ZenMatcha Premium Powder 100g",cat:"food",price:449,orig:599,img:"https://images.unsplash.com/photo-1523920290228-4f321a939b4c?w=400&h=300&fit=crop",rating:4.7,sold:2987,badge:"sale"},
   {id:30,name:"SunGrain Artisan Granola 400g",cat:"food",price:349,orig:499,img:"https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=400&h=300&fit=crop",rating:4.5,sold:3210,badge:null},
+  {id:55,name:"OrganicBlend Green Tea Set",cat:"food",price:349,orig:499,img:"https://images.unsplash.com/photo-1597318130488-6f1c68c3c5fa?w=400&h=300&fit=crop",rating:4.8,sold:4123,badge:"hot"},
+  {id:56,name:"ChocoPure Dark Chocolate Bar",cat:"food",price:199,orig:299,img:"https://images.unsplash.com/photo-1599599810694-b5ac4dd64b11?w=400&h=300&fit=crop",rating:4.7,sold:7654,badge:"sale"},
+  {id:57,name:"PureSeed Almonds 500g",cat:"food",price:549,orig:799,img:"https://images.unsplash.com/photo-1585518419759-82f0ce63c1eb?w=400&h=300&fit=crop",rating:4.6,sold:3432,badge:null},
+  {id:58,name:"VitaminBoost Dried Fruits Mix",cat:"food",price:449,orig:699,img:"https://images.unsplash.com/photo-1599599810694-b5ac4dd64b11?w=400&h=300&fit=crop",rating:4.5,sold:2876,badge:null},
+  {id:59,name:"PowerSmoothie Protein Powder",cat:"food",price:699,orig:999,img:"https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",rating:4.9,sold:5543,badge:"new"},
 ];
 
 const CATEGORIES = [
@@ -593,26 +681,26 @@ const CAT_COLORS = {
 const VALID_PREFIXES = ['4341','8788','1234','5454'];
 
 const INITIAL_TXN = [
-  {id:'BO-001',date:'Jan 14',customer:'Maria Santos',items:[1,22],amount:1698,card:'4341 ●●●● ●●●● 2891',status:'success'},
-  {id:'BO-002',date:'Jan 14',customer:'Anonymous',items:[20],amount:1499,card:'9821 ●●●● ●●●● 4523',status:'fraud'},
-  {id:'BO-003',date:'Jan 15',customer:'Ana Reyes',items:[16,19],amount:1148,card:'5454 ●●●● ●●●● 7734',status:'success'},
-  {id:'BO-004',date:'Jan 15',customer:'Jose Bautista',items:[2,11],amount:2948,card:'1234 ●●●● ●●●● 1122',status:'success'},
-  {id:'BO-005',date:'Jan 16',customer:'Anonymous',items:[16],amount:899,card:'7654 ●●●● ●●●● 9011',status:'fraud'},
-  {id:'BO-006',date:'Jan 16',customer:'Lisa Ramos',items:[24,21],amount:3648,card:'8788 ●●●● ●●●● 3341',status:'success'},
-  {id:'BO-007',date:'Jan 17',customer:'Pedro Cruz',items:[3,10],amount:948,card:'4341 ●●●● ●●●● 5509',status:'success'},
-  {id:'BO-008',date:'Jan 17',customer:'Anonymous',items:[24],amount:2899,card:'3310 ●●●● ●●●● 7821',status:'fraud'},
-  {id:'BO-009',date:'Jan 18',customer:'Rosa Mendoza',items:[27,26,30],amount:1247,card:'5454 ●●●● ●●●● 0012',status:'success'},
-  {id:'BO-010',date:'Jan 18',customer:'Marco Diaz',items:[7,23],amount:1848,card:'1234 ●●●● ●●●● 8843',status:'success'},
-  {id:'BO-011',date:'Jan 19',customer:'Anonymous',items:[8,17],amount:1148,card:'6699 ●●●● ●●●● 2234',status:'fraud'},
-  {id:'BO-012',date:'Jan 19',customer:'Elena Torres',items:[15,12],amount:1998,card:'8788 ●●●● ●●●● 6670',status:'success'},
-  {id:'BO-013',date:'Jan 20',customer:'Ramon Flores',items:[26,29],amount:948,card:'4341 ●●●● ●●●● 1129',status:'success'},
-  {id:'BO-014',date:'Jan 20',customer:'Anonymous',items:[2],amount:2499,card:'2233 ●●●● ●●●● 5599',status:'fraud'},
-  {id:'BO-015',date:'Jan 21',customer:'Cris Nakamura',items:[18,19,17],amount:1097,card:'1234 ●●●● ●●●● 9934',status:'success'},
-  {id:'BO-016',date:'Jan 21',customer:'Joy Espiritu',items:[6,9],amount:998,card:'8788 ●●●● ●●●● 4412',status:'success'},
-  {id:'BO-017',date:'Jan 22',customer:'Anonymous',items:[1,2],amount:3798,card:'5533 ●●●● ●●●● 8871',status:'fraud'},
-  {id:'BO-018',date:'Jan 22',customer:'Nina Castillo',items:[22,25,28],amount:997,card:'4341 ●●●● ●●●● 7763',status:'success'},
-  {id:'BO-019',date:'Jan 23',customer:'Bong Tolentino',items:[14,13],amount:998,card:'5454 ●●●● ●●●● 3390',status:'success'},
-  {id:'BO-020',date:'Jan 23',customer:'Clara Navarro',items:[20,16,18],amount:2897,card:'1234 ●●●● ●●●● 2281',status:'success'},
+  {id:'BO-001',date:'Jan 14',customer:'Maria Santos',items:[1,22],amount:1698,card:'4341 ●●●● ●●●● 2891',status:'success',fraudType:''},
+  {id:'BO-002',date:'Jan 14',customer:'Anonymous',items:[20],amount:1499,card:'9821 ●●●● ●●●● 4523',status:'fraud',fraudType:'invalid_card'},
+  {id:'BO-003',date:'Jan 15',customer:'Ana Reyes',items:[16,19],amount:1148,card:'5454 ●●●● ●●●● 7734',status:'success',fraudType:''},
+  {id:'BO-004',date:'Jan 15',customer:'Jose Bautista',items:[2,11],amount:2948,card:'1234 ●●●● ●●●● 1122',status:'success',fraudType:''},
+  {id:'BO-005',date:'Jan 16',customer:'Anonymous',items:[16],amount:899,card:'7654 ●●●● ●●●● 9011',status:'fraud',fraudType:'invalid_card'},
+  {id:'BO-006',date:'Jan 16',customer:'Lisa Ramos',items:[24,21],amount:3648,card:'8788 ●●●● ●●●● 3341',status:'success',fraudType:''},
+  {id:'BO-007',date:'Jan 17',customer:'Pedro Cruz',items:[3,10],amount:948,card:'4341 ●●●● ●●●● 5509',status:'success',fraudType:''},
+  {id:'BO-008',date:'Jan 17',customer:'Anonymous',items:[24],amount:2899,card:'3310 ●●●● ●●●● 7821',status:'fraud',fraudType:'invalid_card'},
+  {id:'BO-009',date:'Jan 18',customer:'Rosa Mendoza',items:[27,26,30],amount:1247,card:'5454 ●●●● ●●●● 0012',status:'success',fraudType:''},
+  {id:'BO-010',date:'Jan 18',customer:'Marco Diaz',items:[7,23],amount:1848,card:'1234 ●●●● ●●●● 8843',status:'success',fraudType:''},
+  {id:'BO-011',date:'Jan 19',customer:'Anonymous',items:[8,17],amount:1148,card:'6699 ●●●● ●●●● 2234',status:'fraud',fraudType:'invalid_card'},
+  {id:'BO-012',date:'Jan 19',customer:'Elena Torres',items:[15,12],amount:1998,card:'8788 ●●●● ●●●● 6670',status:'success',fraudType:''},
+  {id:'BO-013',date:'Jan 20',customer:'Ramon Flores',items:[26,29],amount:948,card:'4341 ●●●● ●●●● 1129',status:'success',fraudType:''},
+  {id:'BO-014',date:'Jan 20',customer:'Anonymous',items:[2],amount:2499,card:'2233 ●●●● ●●●● 5599',status:'fraud',fraudType:'invalid_card'},
+  {id:'BO-015',date:'Jan 21',customer:'Cris Nakamura',items:[18,19,17],amount:1097,card:'1234 ●●●● ●●●● 9934',status:'success',fraudType:''},
+  {id:'BO-016',date:'Jan 21',customer:'Joy Espiritu',items:[6,9],amount:998,card:'8788 ●●●● ●●●● 4412',status:'success',fraudType:''},
+  {id:'BO-017',date:'Jan 22',customer:'Anonymous',items:[1,2],amount:3798,card:'5533 ●●●● ●●●● 8871',status:'fraud',fraudType:'invalid_card'},
+  {id:'BO-018',date:'Jan 22',customer:'Nina Castillo',items:[22,25,28],amount:997,card:'4341 ●●●● ●●●● 7763',status:'success',fraudType:''},
+  {id:'BO-019',date:'Jan 23',customer:'Bong Tolentino',items:[14,13],amount:998,card:'5454 ●●●● ●●●● 3390',status:'success',fraudType:''},
+  {id:'BO-020',date:'Jan 23',customer:'Clara Navarro',items:[20,16,18],amount:2897,card:'1234 ●●●● ●●●● 2281',status:'success',fraudType:''},
 ];
 
 // ===================================================================
@@ -708,7 +796,7 @@ function renderProducts(){
     const disc = Math.round((1-p.price/p.orig)*100);
     const delay = Math.min(i*30, 300);
     return `
-    <div class="prod-card" style="animation-delay:${delay}ms">
+    <div class="prod-card" style="animation-delay:${delay}ms" onclick="openProductModal(${p.id})">
       ${p.badge?`<div class="prod-badge ${p.badge}">${p.badge==='hot'?'🔥 Hot':p.badge==='new'?'✦ New':'⚡ Sale'}</div>`:''}
       <div class="prod-img-wrap">
         <img class="prod-img" src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.parentElement.style.background='var(--violet-pale)'">
@@ -964,8 +1052,110 @@ function submitPayment(){
 }
 
 // ===================================================================
-//  FRAUD DETECTION
+//  PRODUCT MODAL
 // ===================================================================
+function openProductModal(prodId){
+  const prod = PRODUCTS.find(p=>p.id===prodId);
+  if(!prod) return;
+  const disc = Math.round((1-prod.price/prod.orig)*100);
+  const reviews = PRODUCT_REVIEWS[prodId] || [];
+  document.getElementById('modalProdName').textContent = prod.name;
+  document.getElementById('modalProdBody').innerHTML = `
+    <div style="display:flex;gap:20px;margin-bottom:24px">
+      <img src="${prod.img}" style="width:280px;height:280px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border);" onerror="this.style.background='var(--violet-pale)'">
+      <div style="flex:1">
+        <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:8px">${prod.name}</div>
+        <div style="display:flex;gap:16px;margin-bottom:12px;align-items:center">
+          <span style="font-size:14px;color:var(--text-l)">Category: <span style="color:var(--text);font-weight:600;text-transform:capitalize">${prod.cat}</span></span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:14px">
+            <span style="color:var(--accent);font-size:16px">${starStr(prod.rating)}</span>
+            <span style="font-weight:600;color:var(--text)">${prod.rating}</span>
+            <span style="color:var(--text-l)">(${(salesUnits[prod.id]||prod.sold).toLocaleString()} sold)</span>
+          </span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--violet)">₱${prod.price.toLocaleString()}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:14px;color:var(--text-l);text-decoration:line-through">₱${prod.orig.toLocaleString()}</span>
+            <span style="font-weight:700;color:var(--success);font-size:14px">Save ${disc}%</span>
+          </div>
+        </div>
+        <button class="atc-btn" style="width:100%;margin-bottom:16px" onclick="addToCart(${prod.id},event);closeProductModal()">🛒 Add to Cart</button>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;font-size:13px;color:var(--text-m);line-height:1.6">
+          <strong style="color:var(--text)">✓ Free Shipping Nationwide</strong><br>
+          <strong style="color:var(--text)">✓ 30-Day Money Back Guarantee</strong><br>
+          <strong style="color:var(--text)">✓ Secure Payment Protected</strong><br>
+          <strong style="color:var(--text)">✓ Premium Quality Guaranteed</strong>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:20px">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:16px;color:var(--dark)">Customer Reviews</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${reviews.slice(0,4).map(r=>`
+          <div style="background:var(--surface);padding:12px 14px;border-radius:var(--r-sm);border-left:3px solid var(--violet)">
+            <div style="font-size:13px;color:var(--text)">${r}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('productModal').classList.add('open');
+}
+
+function closeProductModal(evt){
+  if(evt && evt.target.id !== 'productModal') return;
+  document.getElementById('productModal').classList.remove('open');
+}
+
+// ===================================================================
+//  FRAUD DETECTION - ENHANCED
+// ===================================================================
+// ===================================================================
+//  FRAUD DETECTION - ENHANCED
+// ===================================================================
+function detectFraud(cardNum, cardName){
+  const issues = [];
+  const clean = cardNum.replace(/\s/g,'');
+  
+  // Check 1: Valid card prefix
+  if(!VALID_PREFIXES.some(p=>clean.startsWith(p))){
+    issues.push({type:'invalid_card',desc:'Incorrect ATM card number',detail:'Card BIN not registered in system'});
+  }
+  
+  // Check 2: Name mismatch
+  const personName = shippingData.name || '';
+  if(personName.trim() && cardName.trim() && !isNameMatch(personName, cardName)){
+    issues.push({type:'name_mismatch',desc:'Name on card does not match personal info',detail:`Card: "${cardName}" | Person: "${personName}"`});
+  }
+  
+  // Check 3: Contact number validation
+  const phone = shippingData.phone || '';
+  if(!isValidPhoneNumber(phone)){
+    issues.push({type:'invalid_phone',desc:'ID from another country detected',detail:`Phone: "${phone}" | Must start with +63 or 09`});
+  }
+  
+  // Check 4: Bulk selling attempt
+  const bulkItem = pendingItems.find(item=>item.qty>=30);
+  if(bulkItem){
+    issues.push({type:'bulk_fraud',desc:'Bulk selling attempt detected',detail:`${bulkItem.qty}x ${bulkItem.name} - Suspicious high quantity`});
+  }
+  
+  return issues;
+}
+
+function isNameMatch(person, card){
+  const p = person.toLowerCase().trim().split(/\s+/);
+  const c = card.toLowerCase().trim().split(/\s+/);
+  const matches = p.filter(w=>c.includes(w));
+  return matches.length >= Math.min(2, Math.min(p.length, c.length));
+}
+
+function isValidPhoneNumber(phone){
+  const clean = phone.replace(/\D/g,'');
+  return phone.startsWith('+63') || phone.startsWith('09') || phone.startsWith('63');
+}
+
 function isValidCard(cardNum){
   const clean=cardNum.replace(/\s/g,'');
   if(clean.length!==16) return false;
@@ -1005,38 +1195,47 @@ function startFraudDetection(cardNum){
     progBar.style.width='100%';
     setTimeout(()=>{
       loading.style.display='none';
-      const valid=isValidCard(cardNum);
-      if(valid){
+      const cardName=document.getElementById('cardName')?.value?.trim()||'';
+      const fraudIssues = detectFraud(cardNum, cardName);
+      const isValid=isValidCard(cardNum) && fraudIssues.length===0;
+      
+      if(isValid){
         scr.classList.remove('active');
-        recordTransaction(cardNum,true);
+        recordTransaction(cardNum,true,[]);
         showSuccessScreen(pendingItems,cardNum);
         clearCart();
       } else {
-        showFraudResult(cardNum);
-        recordTransaction(cardNum,false);
+        const issues = fraudIssues.length > 0 ? fraudIssues : [{type:'invalid_card',desc:'Invalid card number',detail:'Card prefix not authorized'}];
+        showFraudResult(cardNum, issues);
+        recordTransaction(cardNum,false, issues);
       }
     },400);
   },3400);
 }
 
-function showFraudResult(cardNum){
+function showFraudResult(cardNum, fraudIssues){
   const result=document.getElementById('fraudResult');
   const details=document.getElementById('fraudDetails');
   const scoreEl=document.getElementById('fraudScore');
   const clean=cardNum.replace(/\s/g,'');
   const prefix=clean.substring(0,4);
-  const score=Math.floor(Math.random()*15)+82;
+  const baseScore = 82 + (fraudIssues.length * 6);
+  const score = Math.min(baseScore, 99);
 
-  details.innerHTML=`
+  let detailsHtml = `
     <div class="fdr"><span class="fdr-lbl">Card Number</span><span class="fdr-val">${cardNum.substring(0,4)} ●●●● ●●●● ${cardNum.slice(-4)}</span></div>
     <div class="fdr"><span class="fdr-lbl">Card Format</span><span class="fdr-val ok">16-digit ✓ Valid Format</span></div>
-    <div class="fdr"><span class="fdr-lbl">BIN Prefix</span><span class="fdr-val">${prefix} — UNREGISTERED ISSUER</span></div>
-    <div class="fdr"><span class="fdr-lbl">Authorized Prefixes</span><span class="fdr-val warn">4341 · 8788 · 1234 · 5454</span></div>
-    <div class="fdr"><span class="fdr-lbl">Issuing Bank</span><span class="fdr-val">SUSPICIOUS — No BIN match found</span></div>
-    <div class="fdr"><span class="fdr-lbl">IP Geolocation</span><span class="fdr-val warn">Flagged for review</span></div>
-    <div class="fdr"><span class="fdr-lbl">Transaction Amount</span><span class="fdr-val">₱${pendingItems.reduce((s,i)=>s+i.price*i.qty,0).toLocaleString()}</span></div>
-    <div class="fdr"><span class="fdr-lbl">BuyOlet Shield™</span><span class="fdr-val">🚫 TRANSACTION BLOCKED</span></div>
-  `;
+    <div class="fdr"><span class="fdr-lbl">BIN Prefix</span><span class="fdr-val">${prefix}</span></div>
+    <div class="fdr"><span class="fdr-lbl">Transaction Amount</span><span class="fdr-val">₱${pendingItems.reduce((s,i)=>s+i.price*i.qty,0).toLocaleString()}</span></div>`;
+  
+  fraudIssues.forEach(issue=>{
+    const icons = {invalid_card:'🚫',name_mismatch:'⚠️',invalid_phone:'🌍',bulk_fraud:'📦'};
+    detailsHtml += `<div class="fdr"><span class="fdr-lbl">${icons[issue.type]} ${issue.desc}</span><span class="fdr-val" style="color:#DC2626">${issue.detail}</span></div>`;
+  });
+  
+  detailsHtml += `<div class="fdr"><span class="fdr-lbl">BuyOlet Shield™</span><span class="fdr-val">🚫 TRANSACTION BLOCKED</span></div>`;
+
+  details.innerHTML = detailsHtml;
   scoreEl.textContent=score+'/100';
   result.classList.add('show');
 }
@@ -1128,18 +1327,21 @@ function clearCart(){
 // ===================================================================
 //  RECORD TRANSACTION
 // ===================================================================
-function recordTransaction(cardNum,success){
+function recordTransaction(cardNum,success,fraudIssues=[]){
   const items=pendingItems;
   items.forEach(item=>{
     if(success) salesUnits[item.id]=(salesUnits[item.id]||0)+item.qty;
   });
   const id='BO-'+String(Date.now()).slice(-5);
   const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+  const fraudTypes = fraudIssues.map(f=>f.type).join(', ');
   transactions.unshift({
     id,date:'Just now',customer:shippingData.name||'Customer',
     items:items.map(i=>i.id),amount:total,
     card:cardNum.substring(0,4)+' ●●●● ●●●● '+cardNum.slice(-4),
-    status:success?'success':'fraud'
+    status:success?'success':'fraud',
+    fraudType:fraudTypes,
+    fraudDetails:fraudIssues
   });
 }
 
@@ -1175,6 +1377,33 @@ function renderAnalytics(){
   document.getElementById('fm-fraud').textContent=fraudCount;
   document.getElementById('fm-rate').textContent=fraudRate+'%';
 
+  // Count fraud types
+  const fraudTypes = {};
+  transactions.filter(t=>t.status==='fraud').forEach(t=>{
+    if(t.fraudType){
+      const types = t.fraudType.split(',').map(s=>s.trim());
+      types.forEach(type=>{
+        fraudTypes[type] = (fraudTypes[type]||0) + 1;
+      });
+    }
+  });
+
+  const fraudTypeLabels = {
+    'invalid_card':'🚫 Invalid Card Number',
+    'name_mismatch':'⚠️ Name Mismatch',
+    'invalid_phone':'🌍 Invalid Phone (Non-PH)',
+    'bulk_fraud':'📦 Bulk Selling Attempt'
+  };
+
+  document.getElementById('fraudTypesList').innerHTML = Object.entries(fraudTypes).length > 0 ? 
+    Object.entries(fraudTypes).map(([type,count])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+        <span style="color:var(--text-m)">${fraudTypeLabels[type] || type}</span>
+        <span style="font-weight:700;color:var(--danger);background:#FEF2F2;padding:4px 10px;border-radius:20px">${count} attempt${count!==1?'s':''}</span>
+      </div>
+    `).join('') : 
+    '<div style="text-align:center;padding:20px;color:var(--text-l)">✓ No fraud detected yet!</div>';
+
   const catTotals={};
   CATEGORIES.slice(1).forEach(c=>{catTotals[c.key]=0});
   PRODUCTS.forEach(p=>{catTotals[p.cat]=(catTotals[p.cat]||0)+(salesUnits[p.id]||0)});
@@ -1205,6 +1434,7 @@ function renderAnalytics(){
 
   document.getElementById('txnBody').innerHTML=transactions.slice(0,20).map(t=>{
     const itemNames=t.items.slice(0,2).map(id=>{const p=PRODUCTS.find(x=>x.id===id);return p?p.name.split(' ').slice(0,3).join(' '):'Unknown'}).join(', ')+(t.items.length>2?' +more':'');
+    const fraudTypeDisplay = t.fraudType ? `<div style="font-size:10px;color:#DC2626;font-weight:600;margin-top:2px">${t.fraudType.split(',').map(f=>f.trim()).slice(0,2).join(' • ')}</div>` : '';
     return `<tr>
       <td style="font-family:'Playfair Display',serif;font-weight:700;font-size:12px;color:var(--violet)">${t.id}</td>
       <td style="color:var(--text-l);font-size:12px">${t.date}</td>
@@ -1212,7 +1442,9 @@ function renderAnalytics(){
       <td style="font-size:12px;color:var(--text-m);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemNames}</td>
       <td style="font-family:'Playfair Display',serif;font-weight:700;color:var(--text)">₱${t.amount.toLocaleString()}</td>
       <td style="font-size:12px;color:var(--text-m)">${t.card}</td>
-      <td>${t.status==='fraud'?'<span class="fraud-pill">🚨 Fraud</span>':'<span class="ok-pill">✓ Success</span>'}</td>
+      <td>
+        ${t.status==='fraud'?`<span class="fraud-pill">🚨 Fraud ${fraudTypeDisplay}</span>`:'<span class="ok-pill">✓ Success</span>'}
+      </td>
     </tr>`;
   }).join('');
 
